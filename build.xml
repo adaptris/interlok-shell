@@ -81,7 +81,7 @@
     <!-- build the manifest file -->
     <adapter:create-manifest file="${build.dir}/Manifest.mf" title="${manifest.title}"/>
   	<copy todir="${classes.build.dir}">
-    	<fileset dir="${resources.dir}"/>
+    	<fileset dir="${resources.dir}/jar"/>
   	</copy>
   </target>
 
