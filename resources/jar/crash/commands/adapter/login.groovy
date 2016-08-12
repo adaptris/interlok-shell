@@ -16,5 +16,5 @@ welcome = { ->
 }
 
 prompt = { ->
-  return "% ";
+  return com.adaptris.crash.commands.PromptHelper.getPrompt();
 }
