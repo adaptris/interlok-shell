@@ -75,5 +75,19 @@ public class adapter extends AdapterBaseCommand {
       writer.print(ex.getMessage(), Color.red);
     }
   }
+
+  @Usage("Restart the adapter")
+  @Man("Restart the adapter:\n" +
+      "% adapter restart\n" +
+      "...\n")
+  @Command
+  public String restart() throws Exception {
+    try {
+      getAdapter().requestRestart();
+      return "Adapter (" + getAdapterName() + ") restarted";
+    } catch (Exception e) {
+      return "Could not start the adapter: " + e.getMessage();
+    }
+  }
   
 }
