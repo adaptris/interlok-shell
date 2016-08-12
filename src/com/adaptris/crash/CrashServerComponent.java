@@ -7,9 +7,9 @@ import java.net.URL;
 import java.util.Properties;
 
 import org.crsh.standalone.Bootstrap;
-import org.crsh.vfs.FS;
-import org.crsh.vfs.spi.FSDriver;
-import org.crsh.vfs.spi.file.FileDriver;
+import org.crsh.vfs.FS.Builder;
+import org.crsh.vfs.spi.file.FileMountFactory;
+import org.crsh.vfs.spi.url.ClassPathMountFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,22 +45,28 @@ public class CrashServerComponent implements ManagementComponent {
   @Override
   public void start() throws Exception {
     if(allowedToStart) {
-      FS confFs = new FS();
-      confFs.mount(loadDirFromConfig(bootstrapProperties, CRASH_CONFIG_DIR_PROP));
-      
-      FS commandFs = new FS();
-      commandFs.mount(loadDirFromConfig(bootstrapProperties, CRASH_COMMAND_DIR_PROP));
-      
-      
-      bootstrap = new Bootstrap(this.getClass().getClassLoader(), confFs, commandFs);
+      Builder confBuilder = createBuilder();
+      File configDir = connectToUrl(new URLString(bootstrapProperties.getProperty(CRASH_CONFIG_DIR_PROP)));
+      confBuilder.mount("file:/" + configDir.getCanonicalPath());
+
+      Builder commandBuilder = createBuilder();
+      // This is from crash.shell.jar which we depend on. Because it's JAR based; descending into sub-dirs
+      // won't work so mounting /crash/commands just isn't good.
+      commandBuilder.mount("/crash/commands/base");
+      // Mount other /crash/commands files.
+      commandBuilder.mount("/crash/commands");
+      commandBuilder.mount("file:/" + connectToUrl(new URLString(bootstrapProperties.getProperty(CRASH_COMMAND_DIR_PROP))).getCanonicalPath());
+
+      bootstrap = new Bootstrap(this.getClass().getClassLoader(), confBuilder.build(), commandBuilder.build());
       bootstrap.bootstrap();
     }
   }
 
-  private FSDriver<?> loadDirFromConfig(Properties bsProperties, String dirValue) throws NullPointerException, IOException {
-    FileDriver fileDriver = new FileDriver(connectToUrl(new URLString(bsProperties.getProperty(dirValue))));
-    return fileDriver;
+  private Builder createBuilder() throws Exception {
+    return new Builder().register("file", new FileMountFactory(new File(System.getProperty("user.dir")))).register("classpath",
+        new ClassPathMountFactory(Thread.currentThread().getContextClassLoader()));
   }
+
 
   @Override
   public void stop() throws Exception {
