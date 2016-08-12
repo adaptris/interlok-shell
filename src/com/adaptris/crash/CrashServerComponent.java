@@ -50,6 +50,8 @@ public class CrashServerComponent implements ManagementComponent {
       confBuilder.mount("file:/" + configDir.getCanonicalPath());
 
       Builder commandBuilder = createBuilder();
+      // To get our login.groovy
+      commandBuilder.mount("/crash/commands/adapter");
       // This is from crash.shell.jar which we depend on. Because it's JAR based; descending into sub-dirs
       // won't work so mounting /crash/commands just isn't good.
       commandBuilder.mount("/crash/commands/base");
