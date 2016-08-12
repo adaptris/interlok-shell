@@ -69,18 +69,10 @@ public class adapter extends AdapterBaseCommand {
 
     RenderPrintWriter writer = context.getWriter();      
     try {
-      AdapterManagerMBean adapter = getAdapter();
-      ComponentState state = adapter.getComponentState();
-      if (state instanceof StartedState)
-        writer.print(adapter.createObjectName(), Color.green);
-      else if (state instanceof InitialisedState)
-        writer.print(adapter.createObjectName(), Color.yellow);
-      else
-        writer.print(adapter.createObjectName(), Color.red);
-
+      logStatus(writer, getAdapter());
       writer.print("\n");
-    } catch (Exception e) {
-      e.printStackTrace(writer);
+    } catch (Exception ex) {
+      writer.print(ex.getMessage(), Color.red);
     }
   }
   

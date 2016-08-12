@@ -1,7 +1,7 @@
 package com.adaptris.crash.commands;
 
 import java.lang.management.ManagementFactory;
-import java.util.Set;
+import java.util.*;
 
 import javax.management.InstanceNotFoundException;
 import javax.management.JMX;
@@ -51,6 +51,9 @@ public class channel extends AdapterBaseCommand {
   public String start(@Usage("The channel name to start.") @Argument String channelName) throws Exception {
 
     try {
+      if (!isStarted(getAdapter())) {
+        return "Can't start any channels while the adapter is stopped";
+      }
       getChannel(channelName).requestStart();
       return "Channel (" + channelName + ") started";
     } catch (Exception e) {
@@ -76,22 +79,16 @@ public class channel extends AdapterBaseCommand {
        "...\n")
   @Command
   public void list(InvocationContext<ObjectName> context) throws Exception {
-    Set<ObjectInstance> results = queryJmx("com.adaptris:type=Channel,*");
+    
+    Collection<ChannelManagerMBean> channels = getAllChannels(getAdapter());
     RenderPrintWriter writer = context.getWriter();
-    for (ObjectInstance instance : results) {
-      try {
-        ComponentState state = (ComponentState) server.getAttribute(instance.getObjectName(), "ComponentState");
-        if (state instanceof StartedState)
-          writer.print(instance.getObjectName(), Color.green);
-        else if (state instanceof InitialisedState)
-          writer.print(instance.getObjectName(), Color.yellow);
-        else
-          writer.print(instance.getObjectName(), Color.red);
-
-        writer.print("\n");
-      } catch (Exception ex) {
-        writer.print(ex.getMessage(), Color.red);
+    try {
+      for (ChannelManagerMBean instance : channels) {
+        logStatus(writer, instance);
       }
+      writer.print("\n");
+    } catch (Exception ex) {
+      writer.print(ex.getMessage(), Color.red);
     }
   }
 
