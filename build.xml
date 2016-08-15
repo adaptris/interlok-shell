@@ -1,4 +1,4 @@
-﻿<project basedir="." default="compile" name="crash" xmlns:adapter="uri:adapter" xmlns:ivy="antlib:org.apache.ivy.ant">
+﻿<project basedir="." default="compile" name="shell" xmlns:adapter="uri:adapter" xmlns:ivy="antlib:org.apache.ivy.ant">
   <property file="build.properties"/>
   <property file="ivy.properties"/>
   <import file="${basedir}/ivy/ant-ivy-includes.xml"/> <!-- Ivy tasks -->
