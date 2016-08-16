@@ -26,6 +26,8 @@ import com.adaptris.core.StoppedState;
 import com.adaptris.core.ClosedState;
 import com.adaptris.core.runtime.*;
 import com.adaptris.core.util.JmxHelper;
+import org.crsh.text.Style;
+import org.crsh.text.ui.LabelElement;
 
 @Usage("Interlok Adapter Management")
 @Man("The channel commands allowing you to control the Interlok adapter instance.")
@@ -65,14 +67,11 @@ public class adapter extends AdapterBaseCommand {
        "% adapter status\n" + 
        "...\n")
   @Command
-  public void status(InvocationContext<ObjectName> context) throws Exception {
-
-    RenderPrintWriter writer = context.getWriter();      
+  public void status(InvocationContext<Object> context) throws Exception {
     try {
-      logStatus(writer, getAdapter());
-      writer.print("\n");
+      logStatus(context, getAdapter());
     } catch (Exception ex) {
-      writer.print(ex.getMessage(), Color.red);
+      context.provide(new LabelElement(ex.getMessage()).style(Style.style(Color.red)));
     }
   }
 

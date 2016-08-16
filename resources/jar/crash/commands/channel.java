@@ -10,10 +10,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 
-import org.crsh.cli.Argument;
-import org.crsh.cli.Command;
-import org.crsh.cli.Man;
-import org.crsh.cli.Usage;
+import org.crsh.cli.*;
 import org.crsh.command.BaseCommand;
 import org.crsh.command.InvocationContext;
 import org.crsh.text.Color;
@@ -24,6 +21,10 @@ import com.adaptris.core.InitialisedState;
 import com.adaptris.core.StartedState;
 import com.adaptris.core.runtime.ChannelManagerMBean;
 import com.adaptris.core.util.JmxHelper;
+import org.crsh.text.Style;
+import org.crsh.text.ui.LabelElement;
+import org.crsh.text.ui.RowElement;
+import org.crsh.text.ui.TableElement;
 
 @Usage("Interlok Channel Management")
 @Man("The channel commands allowing you to control Interlok channels (listing, starting, stopping etc).")
@@ -61,34 +62,34 @@ public class channel extends AdapterBaseCommand {
     }
   }
 
-  @Usage("channel listjmx")
-  @Man("Lists all available Interlok Channels MBean info:\n" + 
-       "% channel listjmx\n" + 
-       "...\n")
-  @Command
-  public void listjmx(InvocationContext<ObjectName> context) throws Exception {
-    Set<ObjectInstance> results = queryJmx("com.adaptris:type=Channel,*");
-    for (ObjectInstance instance : results) {
-      context.provide(instance.getObjectName());
-    }
-  }
-
   @Usage("channel list")
   @Man("Lists all available Interlok Channels MBean info:\n" + 
-       "% channel listjmx\n" + 
-       "...\n")
+       "% channel list\n" +
+       "...\n" +
+      "The results can be supplemented with JMX object names:\n" +
+      "% channel list --show-jmx-details\n" +
+      "...")
   @Command
-  public void list(InvocationContext<ObjectName> context) throws Exception {
+  public void list(InvocationContext<Object> context,
+                   @Usage("show jmx details")
+                   @Option(names = {"j","show-jmx-details"})
+                   final Boolean showJmxDetails) throws Exception {
     
     Collection<ChannelManagerMBean> channels = getAllChannels(getAdapter());
-    RenderPrintWriter writer = context.getWriter();
     try {
-      for (ChannelManagerMBean instance : channels) {
-        logStatus(writer, instance);
+      TableElement table = new TableElement().rightCellPadding(1);
+      for (ChannelManagerMBean c : channels) {
+        RowElement channelRow = new RowElement();
+        channelRow.add(new LabelElement("|-"));
+        channelRow.add(new LabelElement(c.getUniqueId()).style(statusColor(c)));
+        if (Boolean.TRUE.equals(showJmxDetails)) {
+          channelRow.add(c.createObjectName().toString());
+        }
+        table.add(channelRow);
       }
-      writer.print("\n");
+      context.provide(table);
     } catch (Exception ex) {
-      writer.print(ex.getMessage(), Color.red);
+      context.provide(new LabelElement(ex.getMessage()).style(Style.style(Color.red)));
     }
   }
 
