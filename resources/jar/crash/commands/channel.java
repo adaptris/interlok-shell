@@ -1,32 +1,15 @@
 package com.adaptris.crash.commands;
 
-import java.lang.management.ManagementFactory;
-import java.util.*;
-
-import javax.management.InstanceNotFoundException;
-import javax.management.JMX;
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectInstance;
-import javax.management.ObjectName;
-
 import com.adaptris.core.runtime.AdapterManagerMBean;
-import org.apache.commons.lang.StringUtils;
+import com.adaptris.core.runtime.ChannelManagerMBean;
 import org.crsh.cli.*;
-import org.crsh.command.BaseCommand;
 import org.crsh.command.InvocationContext;
 import org.crsh.text.Color;
-import org.crsh.text.RenderPrintWriter;
-
-import com.adaptris.core.ComponentState;
-import com.adaptris.core.InitialisedState;
-import com.adaptris.core.StartedState;
-import com.adaptris.core.runtime.ChannelManagerMBean;
-import com.adaptris.core.util.JmxHelper;
 import org.crsh.text.Style;
 import org.crsh.text.ui.LabelElement;
-import org.crsh.text.ui.RowElement;
 import org.crsh.text.ui.TableElement;
+
+import java.util.Collection;
 
 @Usage("Interlok Channel Management")
 @Man("The channel commands allowing you to control Interlok channels (listing, starting, stopping etc).")
