@@ -38,16 +38,14 @@ import com.adaptris.core.util.JmxHelper;
 @Man("The workflow commands allowing you to control Interlok worflows (listing, starting, stopping etc).")
 public class workflow extends AdapterBaseCommand {
 
-  @Usage("workflow list")
+  @Usage("List workflows")
   @Man("Lists all available Interlok Workflow MBean info:\n" +
       "% workflow list\n" +
-      "...\n" +
-      "The results can be supplemented with JMX object names:\n" +
-      "% workflow list --show-jmx-details\n" +
       "...")
   @Command
   public void list(InvocationContext<Object> context,
                    @Usage("show jmx details")
+                   @Man("Supplement results with JMX object names")
                    @Option(names = {"j","show-jmx-details"})
                    final Boolean showJmxDetails) throws Exception {
 
@@ -55,31 +53,13 @@ public class workflow extends AdapterBaseCommand {
     try {
       TableElement table = new TableElement().rightCellPadding(1);
       AdapterManagerMBean adapter = getAdapter();
-      RowElement adapterRow = new RowElement();
-      adapterRow.add(new LabelElement("|-|"));
-      adapterRow.add(new LabelElement(adapter.getUniqueId()).style(statusColor(adapter)));
-      if (Boolean.TRUE.equals(showJmxDetails)) {
-        adapterRow.add(adapter.createObjectName().toString());
-      }
-      table.add(adapterRow);
-      Collection<ChannelManagerMBean> channels = getAllChannels();
-      for (ChannelManagerMBean c : channels) {
-        RowElement channelRow = new RowElement();
-        channelRow.add(new LabelElement("|--|"));
-        channelRow.add(new LabelElement(c.getUniqueId()).style(statusColor(c)));
-        if (Boolean.TRUE.equals(showJmxDetails)) {
-          channelRow.add(c.createObjectName().toString());
-        }
-        table.add(channelRow);
-        Collection<WorkflowManagerMBean> workflows = getAllWorkflows(c);
-        for (WorkflowManagerMBean w : workflows){
-          RowElement workflowRow = new RowElement();
-          workflowRow.add(new LabelElement("|---|"));
-          workflowRow.add(new LabelElement(w.getUniqueId()).style(statusColor(w)));
-          if (Boolean.TRUE.equals(showJmxDetails)) {
-            workflowRow.add(w.createObjectName().toString());
-          }
-          table.add(workflowRow);
+      table.add(listRow(adapter, showJmxDetails));
+      Collection<ChannelManagerMBean> channels = getAllChannels(adapter);
+      for (ChannelManagerMBean channel : channels) {
+        table.add(listRow(channel, showJmxDetails));
+        Collection<WorkflowManagerMBean> workflows = getAllWorkflows(channel);
+        for (WorkflowManagerMBean workflow : workflows){
+          table.add(listRow(workflow, showJmxDetails));
         }
       }
       context.provide(table);

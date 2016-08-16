@@ -10,10 +10,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 
-import org.crsh.cli.Argument;
-import org.crsh.cli.Command;
-import org.crsh.cli.Man;
-import org.crsh.cli.Usage;
+import org.crsh.cli.*;
 import org.crsh.command.BaseCommand;
 import org.crsh.command.InvocationContext;
 import org.crsh.text.Color;
@@ -28,6 +25,7 @@ import com.adaptris.core.runtime.*;
 import com.adaptris.core.util.JmxHelper;
 import org.crsh.text.Style;
 import org.crsh.text.ui.LabelElement;
+import org.crsh.text.ui.TableElement;
 
 @Usage("Interlok Adapter Management")
 @Man("The channel commands allowing you to control the Interlok adapter instance.")
@@ -61,15 +59,21 @@ public class adapter extends AdapterBaseCommand {
       return "Could not start the adapter: " + e.getMessage();
     }
   }
-  
-  @Usage("Check the status of the adapter")
-  @Man("Checks the status:\n" + 
-       "% adapter status\n" + 
-       "...\n")
+
+  @Usage("List adapters")
+  @Man("Lists all available Interlok Adapter MBean info:\n" +
+       "% adapter list\n" +
+       "...")
   @Command
-  public void status(InvocationContext<Object> context) throws Exception {
+  public void list(InvocationContext<Object> context,
+                   @Usage("show jmx details")
+                   @Man("Supplement results with JMX object names")
+                   @Option(names = {"j","show-jmx-details"})
+                   final Boolean showJmxDetails) throws Exception {
     try {
-      logStatus(context, getAdapter());
+      TableElement table = new TableElement().rightCellPadding(1);
+      table.add(listRow(getAdapter(), showJmxDetails));
+      context.provide(table);
     } catch (Exception ex) {
       context.provide(new LabelElement(ex.getMessage()).style(Style.style(Color.red)));
     }

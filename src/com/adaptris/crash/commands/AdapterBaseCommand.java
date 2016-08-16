@@ -11,6 +11,7 @@ import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 
 import com.adaptris.core.runtime.WorkflowManagerMBean;
+import org.apache.commons.lang.StringUtils;
 import org.crsh.command.BaseCommand;
 import org.crsh.command.InvocationContext;
 import org.crsh.text.Color;
@@ -24,6 +25,7 @@ import com.adaptris.core.runtime.ChannelManagerMBean;
 import com.adaptris.core.util.JmxHelper;
 import org.crsh.text.Style;
 import org.crsh.text.ui.LabelElement;
+import org.crsh.text.ui.RowElement;
 
 public abstract class AdapterBaseCommand extends BaseCommand {
 
@@ -49,6 +51,23 @@ public abstract class AdapterBaseCommand extends BaseCommand {
       }
     };
     abstract Color colour();
+  }
+
+  protected enum ComponentTypeIndent{
+
+    Adapter(1),
+    Channel(2),
+    Workflow(3);
+
+    private final int indent;
+
+    ComponentTypeIndent(int indent){
+      this.indent = indent;
+    }
+
+    public int getIndent() {
+      return indent;
+    }
   }
 
   protected transient MBeanServer server;
@@ -138,6 +157,17 @@ public abstract class AdapterBaseCommand extends BaseCommand {
   protected Style.Composite statusColor(AdapterComponentMBean instance) throws Exception{
     ComponentState state = instance.getComponentState();
     return Style.style(ComponentStateColour.valueOf(state.toString()).colour());
+  }
+
+  protected RowElement listRow(AdapterComponentMBean instance, Boolean showJmxDetails) throws Exception{
+    RowElement row = new RowElement();
+    int indent = ComponentTypeIndent.valueOf(instance.createObjectName().getKeyProperty("type")).getIndent();
+    row.add(new LabelElement("|" + StringUtils.repeat("-", indent) + "|"));
+    row.add(new LabelElement(instance.getUniqueId()).style(statusColor(instance)));
+    if (Boolean.TRUE.equals(showJmxDetails)) {
+      row.add(instance.createObjectName().toString());
+    }
+    return row;
   }
 
   protected boolean isStarted(AdapterComponentMBean instance) {

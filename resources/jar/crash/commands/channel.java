@@ -10,6 +10,8 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 
+import com.adaptris.core.runtime.AdapterManagerMBean;
+import org.apache.commons.lang.StringUtils;
 import org.crsh.cli.*;
 import org.crsh.command.BaseCommand;
 import org.crsh.command.InvocationContext;
@@ -62,30 +64,24 @@ public class channel extends AdapterBaseCommand {
     }
   }
 
-  @Usage("channel list")
+  @Usage("List  channels")
   @Man("Lists all available Interlok Channels MBean info:\n" + 
        "% channel list\n" +
-       "...\n" +
-      "The results can be supplemented with JMX object names:\n" +
-      "% channel list --show-jmx-details\n" +
-      "...")
+       "...")
   @Command
   public void list(InvocationContext<Object> context,
                    @Usage("show jmx details")
+                   @Man("Supplement results with JMX object names")
                    @Option(names = {"j","show-jmx-details"})
                    final Boolean showJmxDetails) throws Exception {
     
-    Collection<ChannelManagerMBean> channels = getAllChannels(getAdapter());
     try {
       TableElement table = new TableElement().rightCellPadding(1);
+      AdapterManagerMBean adapter = getAdapter();
+      table.add(listRow(adapter, showJmxDetails));
+      Collection<ChannelManagerMBean> channels = getAllChannels(adapter);
       for (ChannelManagerMBean c : channels) {
-        RowElement channelRow = new RowElement();
-        channelRow.add(new LabelElement("|-"));
-        channelRow.add(new LabelElement(c.getUniqueId()).style(statusColor(c)));
-        if (Boolean.TRUE.equals(showJmxDetails)) {
-          channelRow.add(c.createObjectName().toString());
-        }
-        table.add(channelRow);
+        table.add(listRow(c, showJmxDetails));
       }
       context.provide(table);
     } catch (Exception ex) {
