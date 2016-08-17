@@ -57,6 +57,7 @@ public class CrashServerComponent implements ManagementComponent {
       commandBuilder.mount("/crash/commands/base");
       // Mount other /crash/commands files.
       commandBuilder.mount("/crash/commands");
+      commandBuilder.mount("/com/adaptris/crash/commands");
       commandBuilder.mount("file:/" + connectToUrl(new URLString(bootstrapProperties.getProperty(CRASH_COMMAND_DIR_PROP))).getCanonicalPath());
 
       bootstrap = new Bootstrap(this.getClass().getClassLoader(), confBuilder.build(), commandBuilder.build());
