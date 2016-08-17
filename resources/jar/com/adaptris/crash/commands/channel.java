@@ -2,6 +2,7 @@ package com.adaptris.crash.commands;
 
 import com.adaptris.core.runtime.AdapterManagerMBean;
 import com.adaptris.core.runtime.ChannelManagerMBean;
+import com.adaptris.crash.commands.parameters.ShowJMXDetailsOptions;
 import org.crsh.cli.*;
 import org.crsh.command.InvocationContext;
 import org.crsh.text.Color;
@@ -52,11 +53,7 @@ public class channel extends AdapterBaseCommand {
        "% channel list\n" +
        "...")
   @Command
-  public void list(InvocationContext<Object> context,
-                   @Usage("show jmx details")
-                   @Man("Supplement results with JMX object names")
-                   @Option(names = {"j","show-jmx-details"})
-                   final Boolean showJmxDetails) throws Exception {
+  public void list(InvocationContext<Object> context, @ShowJMXDetailsOptions final Boolean showJmxDetails) throws Exception {
     
     try {
       TableElement table = new TableElement().rightCellPadding(1);
