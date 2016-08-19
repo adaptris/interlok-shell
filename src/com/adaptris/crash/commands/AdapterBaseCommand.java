@@ -93,6 +93,15 @@ public abstract class AdapterBaseCommand extends BaseCommand {
     return bean;
   }
 
+  public ChannelManagerMBean getChannel(MBeanServerConnection serverConnection, String channelName) throws Exception {
+    ObjectName channelObject = getChannelObject(serverConnection, channelName);
+    if (!server.isRegistered(channelObject)) {
+      throw new InstanceNotFoundException("[" + channelName + "] not found");
+    }
+    ChannelManagerMBean bean = JMX.newMBeanProxy(serverConnection, channelObject, ChannelManagerMBean.class);
+    return bean;
+  }
+
   public AdapterManagerMBean getAdapter(MBeanServerConnection serverConnection) throws Exception {
     return JMX.newMBeanProxy(serverConnection, getAdapterObject(serverConnection), AdapterManagerMBean.class);
   }
@@ -154,6 +163,16 @@ public abstract class AdapterBaseCommand extends BaseCommand {
     return channelObject;
   }
 
+  public ObjectName getChannelObject(MBeanServerConnection serverConnection, String channelName) throws Exception {
+    String channelString = "com.adaptris:type=Channel,adapter=" + getAdapterName(serverConnection) + ",id=" + channelName;
+    ObjectName channelObject = ObjectName.getInstance(channelString);
+    return channelObject;
+  }
+
+  protected String getAdapterName(MBeanServerConnection serverConnection) throws Exception {
+    return getAdapterObject(serverConnection).getKeyProperty("id");
+  }
+
   @Deprecated
   protected String getAdapterName() throws Exception {
     return getAdapterObject().getKeyProperty("id");
@@ -209,7 +228,7 @@ public abstract class AdapterBaseCommand extends BaseCommand {
     return row;
   }
 
-  protected boolean isStarted(AdapterComponentMBean instance) {
+  public boolean isStarted(AdapterComponentMBean instance) {
     ComponentState state = instance.getComponentState();
     return state.equals(StartedState.getInstance());
   }
