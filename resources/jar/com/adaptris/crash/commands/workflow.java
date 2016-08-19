@@ -8,11 +8,13 @@ import org.crsh.cli.Command;
 import org.crsh.cli.Man;
 import org.crsh.cli.Usage;
 import org.crsh.command.InvocationContext;
+import org.crsh.command.Pipe;
 import org.crsh.text.Color;
 import org.crsh.text.Style;
 import org.crsh.text.ui.LabelElement;
 import org.crsh.text.ui.TableElement;
 
+import javax.management.MBeanServerConnection;
 import java.util.Collection;
 
 @Usage("Interlok Workflow Management")
@@ -24,23 +26,27 @@ public class workflow extends AdapterBaseCommand {
       "% workflow list\n" +
       "...")
   @Command
-  public void list(InvocationContext<Object> context, @ShowJMXDetailsOptions final Boolean showJmxDetails) throws Exception {
-    try {
-      TableElement table = new TableElement().rightCellPadding(1);
-      AdapterManagerMBean adapter = getAdapter();
-      table.add(listRow(adapter, showJmxDetails));
-      Collection<ChannelManagerMBean> channels = getAllChannels(adapter);
-      for (ChannelManagerMBean channel : channels) {
-        table.add(listRow(channel, showJmxDetails));
-        Collection<WorkflowManagerMBean> workflows = getAllWorkflows(channel);
-        for (WorkflowManagerMBean workflow : workflows){
-          table.add(listRow(workflow, showJmxDetails));
+  public Pipe<MBeanServerConnection, Object> list(@ShowJMXDetailsOptions final Boolean showJmxDetails) throws Exception {
+    return new Pipe<MBeanServerConnection, Object>() {
+      public void provide(MBeanServerConnection connection) throws Exception {
+        try {
+          TableElement table = new TableElement().rightCellPadding(1);
+          AdapterManagerMBean adapter = getAdapter(connection);
+          table.add(listRow(adapter, showJmxDetails));
+          Collection<ChannelManagerMBean> channels = getAllChannels(connection, adapter);
+          for (ChannelManagerMBean channel : channels) {
+            table.add(listRow(channel, showJmxDetails));
+            Collection<WorkflowManagerMBean> workflows = getAllWorkflows(connection, channel);
+            for (WorkflowManagerMBean workflow : workflows) {
+              table.add(listRow(workflow, showJmxDetails));
+            }
+          }
+          context.provide(table);
+        } catch (Exception ex) {
+          context.provide(new LabelElement(ex.getMessage()).style(Style.style(Color.red)));
         }
       }
-      context.provide(table);
-    } catch (Exception ex) {
-      context.provide(new LabelElement(ex.getMessage()).style(Style.style(Color.red)));
-    }
+    };
   }
 
 }

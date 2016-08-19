@@ -102,6 +102,15 @@ public abstract class AdapterBaseCommand extends BaseCommand {
     return JMX.newMBeanProxy(server, getAdapterObject(), AdapterManagerMBean.class);
   }
 
+  public Collection<WorkflowManagerMBean> getAllWorkflows(MBeanServerConnection serverConnection, ChannelManagerMBean channelManagerMBean) throws Exception {
+    Collection<ObjectName> children = channelManagerMBean.getChildren();
+    Collection<WorkflowManagerMBean> result = new ArrayList<WorkflowManagerMBean>();
+    for (ObjectName o : children) {
+      result.add(JMX.newMBeanProxy(serverConnection, o, WorkflowManagerMBean.class));
+    }
+    return result;
+  }
+
   @Deprecated
   protected Collection<WorkflowManagerMBean> getAllWorkflows(ChannelManagerMBean channelManagerMBean) throws Exception {
     Collection<ObjectName> children = channelManagerMBean.getChildren();
@@ -112,6 +121,14 @@ public abstract class AdapterBaseCommand extends BaseCommand {
     return result;
   }
 
+  public Collection<ChannelManagerMBean> getAllChannels(MBeanServerConnection serverConnection, AdapterManagerMBean adapter) throws Exception {
+    Collection<ObjectName> children = adapter.getChildren();
+    Collection<ChannelManagerMBean> result = new ArrayList<ChannelManagerMBean>();
+    for (ObjectName o : children) {
+      result.add(JMX.newMBeanProxy(serverConnection, o, ChannelManagerMBean.class));
+    }
+    return result;
+  }
 
   @Deprecated
   protected Collection<ChannelManagerMBean> getAllChannels(AdapterManagerMBean adapter) throws Exception {
