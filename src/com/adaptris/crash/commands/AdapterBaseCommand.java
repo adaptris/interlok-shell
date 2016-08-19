@@ -66,36 +66,9 @@ public abstract class AdapterBaseCommand extends BaseCommand {
     }
   }
 
-  @Deprecated
-  protected transient MBeanServer server;
-
-  public AdapterBaseCommand() {
-    server = JmxHelper.findMBeanServer();
-  }
-
-  @Deprecated
-  protected WorkflowManagerMBean getWorkflow(String channelName, String workflowName) throws Exception {
-    ObjectName workflowObject = getWorkflowObject(channelName, workflowName);
-    if (!server.isRegistered(workflowObject)){
-      throw new InstanceNotFoundException("[" + workflowName + "] in [" + channelName +"] not found");
-    }
-    WorkflowManagerMBean bean = JMX.newMBeanProxy(server, workflowObject, WorkflowManagerMBean.class);
-    return bean;
-  }
-
-  @Deprecated
-  protected ChannelManagerMBean getChannel(String channelName) throws Exception {
-    ObjectName channelObject = getChannelObject(channelName);
-    if (!server.isRegistered(channelObject)) {
-      throw new InstanceNotFoundException("[" + channelName + "] not found");
-    }
-    ChannelManagerMBean bean = JMX.newMBeanProxy(server, channelObject, ChannelManagerMBean.class);
-    return bean;
-  }
-
   public ChannelManagerMBean getChannel(MBeanServerConnection serverConnection, String channelName) throws Exception {
     ObjectName channelObject = getChannelObject(serverConnection, channelName);
-    if (!server.isRegistered(channelObject)) {
+    if (!serverConnection.isRegistered(channelObject)) {
       throw new InstanceNotFoundException("[" + channelName + "] not found");
     }
     ChannelManagerMBean bean = JMX.newMBeanProxy(serverConnection, channelObject, ChannelManagerMBean.class);
@@ -106,26 +79,12 @@ public abstract class AdapterBaseCommand extends BaseCommand {
     return JMX.newMBeanProxy(serverConnection, getAdapterObject(serverConnection), AdapterManagerMBean.class);
   }
 
-  @Deprecated
-  protected AdapterManagerMBean getAdapter() throws Exception {
-    return JMX.newMBeanProxy(server, getAdapterObject(), AdapterManagerMBean.class);
-  }
 
   public Collection<WorkflowManagerMBean> getAllWorkflows(MBeanServerConnection serverConnection, ChannelManagerMBean channelManagerMBean) throws Exception {
     Collection<ObjectName> children = channelManagerMBean.getChildren();
     Collection<WorkflowManagerMBean> result = new ArrayList<WorkflowManagerMBean>();
     for (ObjectName o : children) {
       result.add(JMX.newMBeanProxy(serverConnection, o, WorkflowManagerMBean.class));
-    }
-    return result;
-  }
-
-  @Deprecated
-  protected Collection<WorkflowManagerMBean> getAllWorkflows(ChannelManagerMBean channelManagerMBean) throws Exception {
-    Collection<ObjectName> children = channelManagerMBean.getChildren();
-    Collection<WorkflowManagerMBean> result = new ArrayList<WorkflowManagerMBean>();
-    for (ObjectName o : children) {
-      result.add(JMX.newMBeanProxy(server, o, WorkflowManagerMBean.class));
     }
     return result;
   }
@@ -139,30 +98,6 @@ public abstract class AdapterBaseCommand extends BaseCommand {
     return result;
   }
 
-  @Deprecated
-  protected Collection<ChannelManagerMBean> getAllChannels(AdapterManagerMBean adapter) throws Exception {
-    Collection<ObjectName> children = adapter.getChildren();
-    Collection<ChannelManagerMBean> result = new ArrayList<ChannelManagerMBean>();
-    for (ObjectName o : children) {
-      result.add(JMX.newMBeanProxy(server, o, ChannelManagerMBean.class));
-    }
-    return result;
-  }
-
-  @Deprecated
-  protected ObjectName getWorkflowObject(String channelName, String workflowName) throws Exception {
-    String channelString = "com.adaptris:type=Workflow,adapter=" + getAdapterName() + ",id=" + channelName + ", workflow=" + workflowName;
-    ObjectName workflowObject = ObjectName.getInstance(channelString);
-    return workflowObject;
-  }
-
-  @Deprecated
-  protected ObjectName getChannelObject(String channelName) throws Exception {
-    String channelString = "com.adaptris:type=Channel,adapter=" + getAdapterName() + ",id=" + channelName;
-    ObjectName channelObject = ObjectName.getInstance(channelString);
-    return channelObject;
-  }
-
   public ObjectName getChannelObject(MBeanServerConnection serverConnection, String channelName) throws Exception {
     String channelString = "com.adaptris:type=Channel,adapter=" + getAdapterName(serverConnection) + ",id=" + channelName;
     ObjectName channelObject = ObjectName.getInstance(channelString);
@@ -173,34 +108,10 @@ public abstract class AdapterBaseCommand extends BaseCommand {
     return getAdapterObject(serverConnection).getKeyProperty("id");
   }
 
-  @Deprecated
-  protected String getAdapterName() throws Exception {
-    return getAdapterObject().getKeyProperty("id");
-  }
-
-  @Deprecated
-  protected Set<ObjectInstance> queryJmx(String pattern)
-      throws Exception {
-    ObjectName patternName = pattern != null ? ObjectName.getInstance(pattern) : null;
-    return server.queryMBeans(patternName, null);
-  }
-
   protected ObjectName getAdapterObject(MBeanServerConnection serverConnection) throws Exception {
     String interlokBaseObject = "com.adaptris:type=Adapter,id=*";
     ObjectName patternName = ObjectName.getInstance(interlokBaseObject);
     Set<ObjectInstance> instances = serverConnection.queryMBeans(patternName, null);
-
-    if (instances.size() == 0)
-      throw new InstanceNotFoundException("No configured Adapters");
-    else
-      return instances.iterator().next().getObjectName();
-  }
-
-  @Deprecated
-  protected ObjectName getAdapterObject() throws Exception {
-    String interlokBaseObject = "com.adaptris:type=Adapter,id=*";
-    ObjectName patternName = ObjectName.getInstance(interlokBaseObject);
-    Set<ObjectInstance> instances = server.queryMBeans(patternName, null);
 
     if (instances.size() == 0)
       throw new InstanceNotFoundException("No configured Adapters");
@@ -230,6 +141,6 @@ public abstract class AdapterBaseCommand extends BaseCommand {
 
   public boolean isStarted(AdapterComponentMBean instance) {
     ComponentState state = instance.getComponentState();
-    return state.equals(StartedState.getInstance());
+    return state instanceof StartedState;
   }
 }

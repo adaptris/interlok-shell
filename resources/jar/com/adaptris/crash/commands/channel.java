@@ -6,6 +6,7 @@ import com.adaptris.crash.commands.parameters.ShowJMXDetailsOptions;
 import org.crsh.cli.*;
 import org.crsh.command.InvocationContext;
 import org.crsh.command.Pipe;
+import org.crsh.command.ScriptException;
 import org.crsh.text.Color;
 import org.crsh.text.Style;
 import org.crsh.text.ui.LabelElement;
@@ -48,7 +49,7 @@ public class channel extends AdapterBaseCommand {
       public void provide(MBeanServerConnection connection) throws Exception {
         try {
           if (!isStarted(getAdapter(connection))) {
-            context.provide("Can't start any channels while the adapter is stopped");
+            throw new ScriptException("Can't start any channels while the adapter is stopped");
           }
           getChannel(connection, channelName).requestStart(TIMEOUT);
           context.provide("Channel (" + channelName + ") started");
