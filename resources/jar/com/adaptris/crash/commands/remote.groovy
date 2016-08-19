@@ -14,13 +14,13 @@ class remote implements AdapterConnectionCommand {
   @Command
   public String connect(
       @Usage("The JMX service URL") @Argument String jmxServiceUrl) {
-    if (adapterManagerMBean != null) {
+    if (jmxConnector != null) {
       throw new ScriptException("Already connected");
     }
     if (jmxServiceUrl == null) {
       return "Connection string is mandatory"
     }
-    adapterManagerMBean = JMXConnectorFactory.connect(new JMXServiceURL(jmxServiceUrl), null).getMBeanServerConnection();
+    jmxConnector = JMXConnectorFactory.connect(new JMXServiceURL(jmxServiceUrl), null)
     return "Connected to : $jmxServiceUrl"
   }
 
@@ -28,8 +28,9 @@ class remote implements AdapterConnectionCommand {
   @Usage("close the current connection")
   @Command
   public String close() {
-    if (adapterManagerMBean != null) {
-      adapterManagerMBean = null;
+    if (jmxConnector != null) {
+      jmxConnector.close();
+      jmxConnector = null;
     }
     return "Connection closed"
   }
@@ -38,9 +39,9 @@ class remote implements AdapterConnectionCommand {
   @Usage("returns MBeanServerConnection connection")
   @Command
   MBeanServerConnection connection() {
-    if (adapterManagerMBean == null){
+    if (jmxConnector == null){
       throw new ScriptException("Not connected; See [remote --help].");
     }
-    return adapterManagerMBean;
+    return jmxConnector.getMBeanServerConnection();;
   }
 }
