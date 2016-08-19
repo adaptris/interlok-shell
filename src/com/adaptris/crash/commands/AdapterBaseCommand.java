@@ -4,11 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 
-import javax.management.InstanceNotFoundException;
-import javax.management.JMX;
-import javax.management.MBeanServer;
-import javax.management.ObjectInstance;
-import javax.management.ObjectName;
+import javax.management.*;
 
 import com.adaptris.core.runtime.WorkflowManagerMBean;
 import org.apache.commons.lang.StringUtils;
@@ -70,12 +66,14 @@ public abstract class AdapterBaseCommand extends BaseCommand {
     }
   }
 
+  @Deprecated
   protected transient MBeanServer server;
 
   public AdapterBaseCommand() {
     server = JmxHelper.findMBeanServer();
   }
 
+  @Deprecated
   protected WorkflowManagerMBean getWorkflow(String channelName, String workflowName) throws Exception {
     ObjectName workflowObject = getWorkflowObject(channelName, workflowName);
     if (!server.isRegistered(workflowObject)){
@@ -85,6 +83,7 @@ public abstract class AdapterBaseCommand extends BaseCommand {
     return bean;
   }
 
+  @Deprecated
   protected ChannelManagerMBean getChannel(String channelName) throws Exception {
     ObjectName channelObject = getChannelObject(channelName);
     if (!server.isRegistered(channelObject)) {
@@ -94,10 +93,16 @@ public abstract class AdapterBaseCommand extends BaseCommand {
     return bean;
   }
 
+  public AdapterManagerMBean getAdapter(MBeanServerConnection serverConnection) throws Exception {
+    return JMX.newMBeanProxy(serverConnection, getAdapterObject(serverConnection), AdapterManagerMBean.class);
+  }
+
+  @Deprecated
   protected AdapterManagerMBean getAdapter() throws Exception {
     return JMX.newMBeanProxy(server, getAdapterObject(), AdapterManagerMBean.class);
   }
 
+  @Deprecated
   protected Collection<WorkflowManagerMBean> getAllWorkflows(ChannelManagerMBean channelManagerMBean) throws Exception {
     Collection<ObjectName> children = channelManagerMBean.getChildren();
     Collection<WorkflowManagerMBean> result = new ArrayList<WorkflowManagerMBean>();
@@ -108,6 +113,7 @@ public abstract class AdapterBaseCommand extends BaseCommand {
   }
 
 
+  @Deprecated
   protected Collection<ChannelManagerMBean> getAllChannels(AdapterManagerMBean adapter) throws Exception {
     Collection<ObjectName> children = adapter.getChildren();
     Collection<ChannelManagerMBean> result = new ArrayList<ChannelManagerMBean>();
@@ -117,28 +123,44 @@ public abstract class AdapterBaseCommand extends BaseCommand {
     return result;
   }
 
+  @Deprecated
   protected ObjectName getWorkflowObject(String channelName, String workflowName) throws Exception {
     String channelString = "com.adaptris:type=Workflow,adapter=" + getAdapterName() + ",id=" + channelName + ", workflow=" + workflowName;
     ObjectName workflowObject = ObjectName.getInstance(channelString);
     return workflowObject;
   }
 
+  @Deprecated
   protected ObjectName getChannelObject(String channelName) throws Exception {
     String channelString = "com.adaptris:type=Channel,adapter=" + getAdapterName() + ",id=" + channelName;
     ObjectName channelObject = ObjectName.getInstance(channelString);
     return channelObject;
   }
 
+  @Deprecated
   protected String getAdapterName() throws Exception {
     return getAdapterObject().getKeyProperty("id");
   }
 
+  @Deprecated
   protected Set<ObjectInstance> queryJmx(String pattern)
       throws Exception {
     ObjectName patternName = pattern != null ? ObjectName.getInstance(pattern) : null;
     return server.queryMBeans(patternName, null);
   }
 
+  protected ObjectName getAdapterObject(MBeanServerConnection serverConnection) throws Exception {
+    String interlokBaseObject = "com.adaptris:type=Adapter,id=*";
+    ObjectName patternName = ObjectName.getInstance(interlokBaseObject);
+    Set<ObjectInstance> instances = serverConnection.queryMBeans(patternName, null);
+
+    if (instances.size() == 0)
+      throw new InstanceNotFoundException("No configured Adapters");
+    else
+      return instances.iterator().next().getObjectName();
+  }
+
+  @Deprecated
   protected ObjectName getAdapterObject() throws Exception {
     String interlokBaseObject = "com.adaptris:type=Adapter,id=*";
     ObjectName patternName = ObjectName.getInstance(interlokBaseObject);
@@ -159,7 +181,7 @@ public abstract class AdapterBaseCommand extends BaseCommand {
     return Style.style(ComponentStateColour.valueOf(state.toString()).colour());
   }
 
-  protected RowElement listRow(AdapterComponentMBean instance, Boolean showJmxDetails) throws Exception{
+  public RowElement listRow(AdapterComponentMBean instance, Boolean showJmxDetails) throws Exception{
     RowElement row = new RowElement();
     int indent = ComponentTypeIndent.valueOf(instance.createObjectName().getKeyProperty("type")).getIndent();
     row.add(new LabelElement("|" + StringUtils.repeat("-", indent) + "|"));
