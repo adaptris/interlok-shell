@@ -23,7 +23,7 @@ public class adapter extends AdapterBaseCommand {
 
   @Usage("Stop The Adapter")
   @Man("Stops a running Interlok:\n" +
-       "% adapter stop\n" + 
+       "% local connection | adapter stop\n" + 
        "...\n")
   @Command
   public Pipe<MBeanServerConnection, String> stop() throws Exception {
@@ -43,7 +43,7 @@ public class adapter extends AdapterBaseCommand {
 
   @Usage("Start the adapter")
   @Man("Starts a stopped adapter:\n" + 
-       "% adapter start\n" + 
+       "% local connection | adapter start\n" + 
        "...\n")
   @Command
   public Pipe<MBeanServerConnection, String> start() throws Exception {
@@ -62,7 +62,7 @@ public class adapter extends AdapterBaseCommand {
 
   @Usage("List adapters")
   @Man("Lists all available Interlok Adapter MBean info:\n" +
-       "% adapter list\n" +
+       "% local connection | adapter list\n" +
        "...")
   @Command
   public Pipe<MBeanServerConnection, Object> list(@ShowJMXDetailsOptions final Boolean showJmxDetails) throws Exception {
@@ -82,7 +82,7 @@ public class adapter extends AdapterBaseCommand {
 
   @Usage("Restart the adapter")
   @Man("Restart the adapter:\n" +
-      "% adapter restart\n" +
+      "% local connection | adapter restart\n" +
       "...\n")
   @Command
   public Pipe<MBeanServerConnection, String> restart() throws Exception {
@@ -101,7 +101,7 @@ public class adapter extends AdapterBaseCommand {
   
   @Usage("Reload Configuration")
   @Man("Reload the adapter from configuration (does not start)\n" + 
-       "% adapter reload\n" + 
+       "% local connection | adapter reload\n" + 
        "...\n")
   @Command
   public Pipe<MBeanServerConnection, MBeanServerConnection> reload() throws Exception {
@@ -122,7 +122,7 @@ public class adapter extends AdapterBaseCommand {
   
   @Usage("Reload Configuration from VCS (if available)")
   @Man("Reload the adapter from configuration after a VCS update\n" + 
-       "% adapter reloadVCS\n" + 
+       "% local connection | adapter reloadVCS\n" + 
        "...\n")
   @Command
   public Pipe<MBeanServerConnection, MBeanServerConnection> reloadVCS() throws Exception {

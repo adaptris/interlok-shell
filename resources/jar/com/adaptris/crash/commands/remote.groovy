@@ -8,9 +8,14 @@ import javax.management.MBeanServerConnection
 import javax.management.remote.JMXConnectorFactory
 import javax.management.remote.JMXServiceURL
 
+@Usage("Interlok (remote) JMX Connection Management")
+@Man("Provides a connection to the remote JMX MBeanServerConnection")
 class remote implements AdapterConnectionCommand {
 
-  @Usage("connect to JMX with a JMXServiceURL")
+  @Usage("Connect to JMX with a JMXServiceURL")
+  @Man("Connect to JMX with a JMXServiceURL :\n" +
+       "% remote connect service:jmx:jmxmp://remote.server.com:5555\n" + 
+       "...\n")
   @Command
   public String connect(
       @Usage("The JMX service URL") @Argument String jmxServiceUrl) {

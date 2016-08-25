@@ -23,7 +23,7 @@ public class channel extends AdapterBaseCommand {
 
   @Usage("Stop an Interlok Channel")
   @Man("Stops a running Interlok channel:\n" +
-       "% channel stop <channel name>\n" + 
+       "% local connection | channel stop <channel name>\n" + 
        "...\n")
   @Command
   public Pipe<MBeanServerConnection, String> stop(@Usage("The channel name to stop.") @Argument String channelName) throws Exception {
@@ -41,7 +41,7 @@ public class channel extends AdapterBaseCommand {
 
   @Usage("Start an Interlok Channel")
   @Man("Starts a stopped Interlok channel:\n" + 
-       "% channel start <channel name>\n" + 
+       "% local connection | channel start <channel name>\n" + 
        "...\n")
   @Command
   public Pipe<MBeanServerConnection, String> start(@Usage("The channel name to start.") @Argument String channelName) throws Exception {
@@ -62,7 +62,7 @@ public class channel extends AdapterBaseCommand {
 
   @Usage("List  channels")
   @Man("Lists all available Interlok Channels MBean info:\n" + 
-       "% channel list\n" +
+       "% local connection | channel list\n" +
        "...")
   @Command
   public Pipe<MBeanServerConnection, Object> list(@ShowJMXDetailsOptions final Boolean showJmxDetails) throws Exception {

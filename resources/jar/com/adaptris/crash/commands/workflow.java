@@ -23,7 +23,7 @@ public class workflow extends AdapterBaseCommand {
 
   @Usage("List workflows")
   @Man("Lists all available Interlok Workflow MBean info:\n" +
-      "% workflow list\n" +
+      "% local connection | workflow list\n" +
       "...")
   @Command
   public Pipe<MBeanServerConnection, Object> list(@ShowJMXDetailsOptions final Boolean showJmxDetails) throws Exception {
