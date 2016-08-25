@@ -1,6 +1,7 @@
 package com.adaptris.crash.commands;
 
 import com.adaptris.core.runtime.AdapterManagerMBean;
+import com.adaptris.core.runtime.AdapterRegistryMBean;
 import com.adaptris.crash.commands.parameters.ShowJMXDetailsOptions;
 import org.crsh.cli.Command;
 import org.crsh.cli.Man;
@@ -98,4 +99,49 @@ public class adapter extends AdapterBaseCommand {
     };
   }
   
+  @Usage("Reload Configuration")
+  @Man("Reload the adapter from configuration (does not start)\n" + 
+       "% adapter reload\n" + 
+       "...\n")
+  @Command
+  public Pipe<MBeanServerConnection, MBeanServerConnection> reload() throws Exception {
+    return new Pipe<MBeanServerConnection, MBeanServerConnection>(){
+      public void provide(MBeanServerConnection connection) throws Exception {
+        try {
+          AdapterRegistryMBean registry = getRegistry(connection);
+          registry.reloadFromConfig();
+          AdapterManagerMBean adapter = getAdapter(connection);
+          context.getWriter().println("Adapter (" + adapter.getUniqueId() + ") reloaded.");
+          context.provide(connection);
+        } catch (Exception e) {
+          context.getWriter().println("Could not reload the adapter: " + e.getMessage());
+        }
+      }
+    };
+  }
+  
+  @Usage("Reload Configuration from VCS (if available)")
+  @Man("Reload the adapter from configuration after a VCS update\n" + 
+       "% adapter reloadVCS\n" + 
+       "...\n")
+  @Command
+  public Pipe<MBeanServerConnection, MBeanServerConnection> reloadVCS() throws Exception {
+    return new Pipe<MBeanServerConnection, MBeanServerConnection>(){
+      public void provide(MBeanServerConnection connection) throws Exception {
+        try {
+          AdapterRegistryMBean registry = getRegistry(connection);
+          if (registry.getVersionControl() != null) {
+            registry.reloadFromVersionControl();
+            AdapterManagerMBean adapter = getAdapter(connection);
+            context.getWriter().println("Adapter (" + adapter.getUniqueId() + ") reloaded.");
+          } else {
+            context.getWriter().println("No Version Control enabled");          
+          }
+          context.provide(connection);
+        } catch (Exception e) {
+          context.getWriter().println("Could not reload the adapter: " + e.getMessage());
+        }
+      }
+    };
+  }  
 }

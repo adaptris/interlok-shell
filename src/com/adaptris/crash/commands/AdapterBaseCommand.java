@@ -4,26 +4,30 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 
-import javax.management.*;
+import javax.management.InstanceNotFoundException;
+import javax.management.JMX;
+import javax.management.MBeanServerConnection;
+import javax.management.ObjectInstance;
+import javax.management.ObjectName;
 
-import com.adaptris.core.runtime.WorkflowManagerMBean;
 import org.apache.commons.lang.StringUtils;
 import org.crsh.command.BaseCommand;
 import org.crsh.command.InvocationContext;
 import org.crsh.text.Color;
-import org.crsh.text.RenderPrintWriter;
+import org.crsh.text.Style;
+import org.crsh.text.ui.LabelElement;
+import org.crsh.text.ui.RowElement;
 
 import com.adaptris.core.ComponentState;
 import com.adaptris.core.StartedState;
 import com.adaptris.core.runtime.AdapterComponentMBean;
 import com.adaptris.core.runtime.AdapterManagerMBean;
+import com.adaptris.core.runtime.AdapterRegistryMBean;
 import com.adaptris.core.runtime.ChannelManagerMBean;
-import com.adaptris.core.util.JmxHelper;
-import org.crsh.text.Style;
-import org.crsh.text.ui.LabelElement;
-import org.crsh.text.ui.RowElement;
+import com.adaptris.core.runtime.WorkflowManagerMBean;
 
 public abstract class AdapterBaseCommand extends BaseCommand {
+
 
   protected enum ComponentStateColour {
     InitialisedState() {
@@ -79,6 +83,10 @@ public abstract class AdapterBaseCommand extends BaseCommand {
     return JMX.newMBeanProxy(serverConnection, getAdapterObject(serverConnection), AdapterManagerMBean.class);
   }
 
+  public AdapterRegistryMBean getRegistry(MBeanServerConnection serverConnection) throws Exception {
+    return JMX.newMBeanProxy(serverConnection, ObjectName.getInstance(AdapterRegistryMBean.STANDARD_REGISTRY_JMX_NAME),
+        AdapterRegistryMBean.class);
+  }
 
   public Collection<WorkflowManagerMBean> getAllWorkflows(MBeanServerConnection serverConnection, ChannelManagerMBean channelManagerMBean) throws Exception {
     Collection<ObjectName> children = channelManagerMBean.getChildren();
@@ -143,4 +151,5 @@ public abstract class AdapterBaseCommand extends BaseCommand {
     ComponentState state = instance.getComponentState();
     return state instanceof StartedState;
   }
+
 }
