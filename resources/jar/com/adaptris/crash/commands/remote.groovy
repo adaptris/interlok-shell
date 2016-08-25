@@ -13,9 +13,7 @@ import javax.management.remote.JMXServiceURL
 class remote implements AdapterConnectionCommand {
 
   @Usage("Connect to JMX with a JMXServiceURL")
-  @Man("Connect to JMX with a JMXServiceURL :\n" +
-       "% remote connect service:jmx:jmxmp://remote.server.com:5555\n" + 
-       "...\n")
+  @Man("Connect to JMX with a JMXServiceURL :\n% remote connect service:jmx:jmxmp://remote.server.com:5555\n...\n")
   @Command
   public String connect(
       @Usage("The JMX service URL") @Argument String jmxServiceUrl) {
