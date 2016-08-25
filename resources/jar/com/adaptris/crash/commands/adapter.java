@@ -111,10 +111,10 @@ public class adapter extends AdapterBaseCommand {
           AdapterRegistryMBean registry = getRegistry(connection);
           registry.reloadFromConfig();
           AdapterManagerMBean adapter = getAdapter(connection);
-          context.getWriter().println("Adapter (" + adapter.getUniqueId() + ") reloaded.");
+          out.println("Adapter (" + adapter.getUniqueId() + ") reloaded.");         
           context.provide(connection);
         } catch (Exception e) {
-          context.getWriter().println("Could not reload the adapter: " + e.getMessage());
+          out.println("Could not reload the adapter: " + e.getMessage());
         }
       }
     };
@@ -133,13 +133,13 @@ public class adapter extends AdapterBaseCommand {
           if (registry.getVersionControl() != null) {
             registry.reloadFromVersionControl();
             AdapterManagerMBean adapter = getAdapter(connection);
-            context.getWriter().println("Adapter (" + adapter.getUniqueId() + ") reloaded.");
+            out.println("Adapter (" + adapter.getUniqueId() + ") reloaded.");
           } else {
-            context.getWriter().println("No Version Control enabled");          
+            out.println("No Version Control enabled");          
           }
           context.provide(connection);
         } catch (Exception e) {
-          context.getWriter().println("Could not reload the adapter: " + e.getMessage());
+          out.println("Could not reload the adapter: " + e.getMessage());
         }
       }
     };
