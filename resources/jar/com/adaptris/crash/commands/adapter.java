@@ -100,27 +100,23 @@ public class adapter extends AdapterBaseCommand {
   }
   
   @Usage("Reload Configuration")
-  @Man("Reload the adapter from configuration (does not start)\n" + 
-       "% local connection | adapter reload\n" + 
+  @Man("Reload the adapter from configuration\n" + 
+       "% local connection | adapter reload | adapter start\n" + 
        "...\n")
   @Command
   public Pipe<MBeanServerConnection, MBeanServerConnection> reload() throws Exception {
     return new Pipe<MBeanServerConnection, MBeanServerConnection>(){
       public void provide(MBeanServerConnection connection) throws Exception {
-        try {
-          AdapterRegistryMBean registry = getRegistry(connection);
-          registry.reloadFromConfig();
-          AdapterManagerMBean adapter = getAdapter(connection);
-          out.println("Adapter (" + adapter.getUniqueId() + ") reloaded.");         
-          context.provide(connection);
-        } catch (Exception e) {
-          out.println("Could not reload the adapter: " + e.getMessage());
-        }
+        AdapterRegistryMBean registry = getRegistry(connection);
+        registry.reloadFromConfig();
+        AdapterManagerMBean adapter = getAdapter(connection);
+        out.println("Adapter (" + adapter.getUniqueId() + ") reloaded.");         
+        context.provide(connection);
       }
     };
   }
   
-  @Usage("Reload Configuration from VCS (if available)")
+  @Usage("Reload Configuration from VCS")
   @Man("Reload the adapter from configuration after a VCS update\n" + 
        "% local connection | adapter reloadVCS\n" + 
        "...\n")
@@ -128,19 +124,15 @@ public class adapter extends AdapterBaseCommand {
   public Pipe<MBeanServerConnection, MBeanServerConnection> reloadVCS() throws Exception {
     return new Pipe<MBeanServerConnection, MBeanServerConnection>(){
       public void provide(MBeanServerConnection connection) throws Exception {
-        try {
-          AdapterRegistryMBean registry = getRegistry(connection);
-          if (registry.getVersionControl() != null) {
-            registry.reloadFromVersionControl();
-            AdapterManagerMBean adapter = getAdapter(connection);
-            out.println("Adapter (" + adapter.getUniqueId() + ") reloaded.");
-          } else {
-            out.println("No Version Control enabled");          
-          }
-          context.provide(connection);
-        } catch (Exception e) {
-          out.println("Could not reload the adapter: " + e.getMessage());
+        AdapterRegistryMBean registry = getRegistry(connection);
+        if (registry.getVersionControl() != null) {
+          registry.reloadFromVersionControl();
+          AdapterManagerMBean adapter = getAdapter(connection);
+          out.println("Adapter (" + adapter.getUniqueId() + ") reloaded.");
+        } else {
+          throw new Exception("No Version Control");          
         }
+        context.provide(connection);
       }
     };
   }  
