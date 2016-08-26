@@ -2,6 +2,7 @@ package com.adaptris.crash.commands
 
 import org.crsh.cli.Argument
 import org.crsh.cli.Command
+import org.crsh.cli.Man
 import org.crsh.cli.Usage
 
 import javax.management.MBeanServerConnection
@@ -21,10 +22,10 @@ class remote implements AdapterConnectionCommand {
       throw new ScriptException("Already connected");
     }
     if (jmxServiceUrl == null) {
-      return "Connection string is mandatory"
+      return "Connection string is mandatory\n"
     }
     jmxConnector = JMXConnectorFactory.connect(new JMXServiceURL(jmxServiceUrl), null)
-    return "Connected to : $jmxServiceUrl"
+    return "Connected to : $jmxServiceUrl\n"
   }
 
 
@@ -35,7 +36,7 @@ class remote implements AdapterConnectionCommand {
       jmxConnector.close();
       jmxConnector = null;
     }
-    return "Connection closed"
+    return "Connection closed\n"
   }
 
   @Override
