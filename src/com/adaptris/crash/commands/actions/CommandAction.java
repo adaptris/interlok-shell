@@ -8,4 +8,5 @@ import java.util.Map;
 
 interface CommandAction {
   String execute(InvocationContext<Object> context, MBeanServerConnection connection, Map<String, Object> arguments) throws ScriptException;
+  boolean validateArguments(Map<String, Object> arguments);
 }

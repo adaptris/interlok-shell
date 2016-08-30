@@ -2,6 +2,7 @@ package com.adaptris.crash.commands;
 
 import com.adaptris.core.util.JmxHelper;
 import com.adaptris.crash.commands.actions.AdapterCommandAction;
+import com.adaptris.crash.commands.completion.ChannelCompletion;
 import com.adaptris.crash.commands.parameters.LocalConnectionOption;
 import com.adaptris.crash.commands.parameters.ShowJMXDetailsOptions;
 import groovy.util.ScriptException;
@@ -9,6 +10,9 @@ import org.crsh.cli.Argument;
 import org.crsh.cli.Command;
 import org.crsh.cli.Man;
 import org.crsh.cli.Usage;
+import org.crsh.cli.descriptor.ParameterDescriptor;
+import org.crsh.cli.spi.Completer;
+import org.crsh.cli.spi.Completion;
 import org.crsh.command.BaseCommand;
 import org.crsh.command.InvocationContext;
 
@@ -17,13 +21,21 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 import java.io.IOException;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.HashMap;
 import java.util.Map;
 
-public class interlok extends BaseCommand {
+public class interlok extends BaseCommand implements Completer{
 
   private static String JMX_CONNECTOR_KEY = "jmxConnector";
   private static String M_BEAN_SERVER_CONNECTION_KEY = "mBeanServerConnection";
+
+  @Retention(RetentionPolicy.RUNTIME)
+  @Argument(name = "channel", completer = interlok.class)
+  @Usage("The channel name.")
+  private @interface ChannelArgument{
+  }
 
   @Usage("Connect to JMX with a JMXServiceURL or use local connection")
   @Man("Connect to JMX with a JMXServiceURL:\n" +
@@ -67,15 +79,28 @@ public class interlok extends BaseCommand {
 
   @Command
   public String adapter(InvocationContext<Object> invocationContext, @Argument AdapterCommandAction.Commands command, @ShowJMXDetailsOptions final Boolean showJmxDetails) throws ScriptException, IOException {
+
+    Map<String, Object> arguments = new HashMap<String, Object>();
+    arguments.put("showJMXDetails", showJmxDetails);
+    return command.execute(invocationContext, getMBeanServerConnection(), arguments);
+  }
+
+
+  @Override
+  public Completion complete(ParameterDescriptor parameter, String prefix) throws Exception {
+    if (parameter.getAnnotation() instanceof ChannelArgument) {
+      return new ChannelCompletion(getMBeanServerConnection()).complete(parameter, prefix);
+    } else {
+      return Completion.create();
+    }
+  }
+
+  private MBeanServerConnection getMBeanServerConnection() throws ScriptException {
     Map<String, Object> session = context.getSession();
     if (!session.containsKey(M_BEAN_SERVER_CONNECTION_KEY)) {
       throw new ScriptException("Not connected");
     }
-    MBeanServerConnection mBeanServerConnection = (MBeanServerConnection)session.get(M_BEAN_SERVER_CONNECTION_KEY);
-    Map<String, Object> arguments = new HashMap<String, Object>();
-    arguments.put("showJMXDetails", showJmxDetails);
-    return command.execute(invocationContext, mBeanServerConnection, arguments);
-
+   return (MBeanServerConnection)session.get(M_BEAN_SERVER_CONNECTION_KEY);
   }
 
 }
