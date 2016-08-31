@@ -2,6 +2,7 @@ package com.adaptris.crash.commands;
 
 import com.adaptris.core.util.JmxHelper;
 import com.adaptris.crash.commands.actions.AdapterCommandAction;
+import com.adaptris.crash.commands.actions.ChannelCommandAction;
 import com.adaptris.crash.commands.completion.ChannelCompletion;
 import com.adaptris.crash.commands.parameters.LocalConnectionOption;
 import com.adaptris.crash.commands.parameters.ShowJMXDetailsOptions;
@@ -79,9 +80,15 @@ public class interlok extends BaseCommand implements Completer{
 
   @Command
   public String adapter(InvocationContext<Object> invocationContext, @Argument AdapterCommandAction command, @ShowJMXDetailsOptions final Boolean showJmxDetails) throws ScriptException, IOException {
-
     Map<String, Object> arguments = new HashMap<String, Object>();
-    arguments.put("showJMXDetails", showJmxDetails);
+    arguments.put(AdapterCommandAction.SHOW_JMX_DETAILS_KEY, showJmxDetails);
+    return command.execute(invocationContext, getMBeanServerConnection(), arguments);
+  }
+
+  @Command
+  public String channel(InvocationContext<Object> invocationContext, @Argument ChannelCommandAction command, @ChannelArgument String channelName) throws ScriptException, IOException {
+    Map<String, Object> arguments = new HashMap<String, Object>();
+    arguments.put(ChannelCommandAction.CHANNEL_NAME_KEY, channelName);
     return command.execute(invocationContext, getMBeanServerConnection(), arguments);
   }
 

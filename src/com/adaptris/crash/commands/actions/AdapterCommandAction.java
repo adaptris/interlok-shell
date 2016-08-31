@@ -2,12 +2,15 @@ package com.adaptris.crash.commands.actions;
 
 import com.adaptris.core.runtime.AdapterManagerMBean;
 import com.adaptris.core.runtime.AdapterRegistryMBean;
+import com.adaptris.core.runtime.ChannelManagerMBean;
+import com.adaptris.core.runtime.WorkflowManagerMBean;
 import com.adaptris.crash.commands.InterlokCommandUtils;
 import org.crsh.command.InvocationContext;
 import org.crsh.command.ScriptException;
 import org.crsh.text.ui.TableElement;
 
 import javax.management.MBeanServerConnection;
+import java.util.Collection;
 import java.util.Map;
 
 public enum AdapterCommandAction implements CommandAction {
@@ -86,10 +89,20 @@ public enum AdapterCommandAction implements CommandAction {
     public String execute(InvocationContext<Object> context, MBeanServerConnection connection, Map<String, Object> arguments) throws ScriptException {
       try {
         if(!validateArguments(arguments)){
-          throw new ScriptException("showJMXDetails argument is required");
+          throw new ScriptException(SHOW_JMX_DETAILS_KEY + " argument is required");
         }
+        Boolean showJmxDetails = (Boolean)arguments.get(SHOW_JMX_DETAILS_KEY);
         TableElement table = new TableElement().rightCellPadding(1);
-        table.add(InterlokCommandUtils.statusRow(InterlokCommandUtils.getAdapter(connection), (Boolean)arguments.get("showJMXDetails")));
+        AdapterManagerMBean adapter = InterlokCommandUtils.getAdapter(connection);
+        table.add(InterlokCommandUtils.statusRow(adapter, showJmxDetails));
+        Collection<ChannelManagerMBean> channels = InterlokCommandUtils.getAllChannels(connection, adapter);
+        for (ChannelManagerMBean channel : channels) {
+          table.add(InterlokCommandUtils.statusRow(channel, showJmxDetails));
+          Collection<WorkflowManagerMBean> workflows = InterlokCommandUtils.getAllWorkflows(connection, channel);
+          for (WorkflowManagerMBean workflow : workflows) {
+            table.add(InterlokCommandUtils.statusRow(workflow, showJmxDetails));
+          }
+        }
         context.provide(table);
         return null;
       } catch (Exception e) {
@@ -99,12 +112,13 @@ public enum AdapterCommandAction implements CommandAction {
 
     @Override
     public boolean validateArguments(Map<String, Object> arguments) {
-      return arguments.containsKey("showJMXDetails") && (arguments.get("showJMXDetails") == null || arguments.get("showJMXDetails") instanceof Boolean);
+      return arguments.containsKey(SHOW_JMX_DETAILS_KEY) && (arguments.get(SHOW_JMX_DETAILS_KEY) == null || arguments.get(SHOW_JMX_DETAILS_KEY) instanceof Boolean);
     }
   };
 
+  public static final String SHOW_JMX_DETAILS_KEY = "showJMXDetails";
   private static final long TIMEOUT = 60000L;
-  
+
   public boolean validateArguments(Map<String, Object> arguments){
     return true;
   }
