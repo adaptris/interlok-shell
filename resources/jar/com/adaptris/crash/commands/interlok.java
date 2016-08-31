@@ -78,7 +78,7 @@ public class interlok extends BaseCommand implements Completer{
   }
 
   @Command
-  public String adapter(InvocationContext<Object> invocationContext, @Argument AdapterCommandAction.Commands command, @ShowJMXDetailsOptions final Boolean showJmxDetails) throws ScriptException, IOException {
+  public String adapter(InvocationContext<Object> invocationContext, @Argument AdapterCommandAction command, @ShowJMXDetailsOptions final Boolean showJmxDetails) throws ScriptException, IOException {
 
     Map<String, Object> arguments = new HashMap<String, Object>();
     arguments.put("showJMXDetails", showJmxDetails);
