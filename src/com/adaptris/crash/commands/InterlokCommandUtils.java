@@ -72,6 +72,15 @@ public class InterlokCommandUtils {
     return bean;
   }
 
+  public static WorkflowManagerMBean getWorkflow(MBeanServerConnection serverConnection, String channelName, String workflowName) throws Exception {
+    ObjectName workflowObject = getWorkflowObject(serverConnection, channelName, workflowName);
+    if (!serverConnection.isRegistered(workflowObject)) {
+      throw new InstanceNotFoundException("[" + workflowName + "]  not found in channel [" + channelName + "]");
+    }
+    WorkflowManagerMBean bean = JMX.newMBeanProxy(serverConnection, workflowObject, WorkflowManagerMBean.class);
+    return bean;
+  }
+
   public static AdapterManagerMBean getAdapter(MBeanServerConnection serverConnection) throws Exception {
     return JMX.newMBeanProxy(serverConnection, getAdapterObject(serverConnection), AdapterManagerMBean.class);
   }
@@ -101,6 +110,12 @@ public class InterlokCommandUtils {
 
   public static ObjectName getChannelObject(MBeanServerConnection serverConnection, String channelName) throws Exception {
     String channelString = "com.adaptris:type=Channel,adapter=" + getAdapterName(serverConnection) + ",id=" + channelName;
+    ObjectName channelObject = ObjectName.getInstance(channelString);
+    return channelObject;
+  }
+
+  public static ObjectName getWorkflowObject(MBeanServerConnection serverConnection, String channelName, String workflowName) throws Exception {
+    String channelString = "com.adaptris:type=Workflow,adapter=" + getAdapterName(serverConnection) + ",channel="+ channelName + ",id=" + workflowName;
     ObjectName channelObject = ObjectName.getInstance(channelString);
     return channelObject;
   }
