@@ -4,6 +4,7 @@ import com.adaptris.core.runtime.AdapterManagerMBean;
 import com.adaptris.core.runtime.ChannelManagerMBean;
 import com.adaptris.crash.commands.parameters.ShowJMXDetailsOptions;
 import org.crsh.cli.*;
+import org.crsh.command.BaseCommand;
 import org.crsh.command.InvocationContext;
 import org.crsh.command.Pipe;
 import org.crsh.command.ScriptException;
@@ -17,7 +18,7 @@ import java.util.Collection;
 
 @Usage("Interlok Channel Management")
 @Man("The channel commands allowing you to control Interlok channels (listing, starting, stopping etc).")
-public class channel extends AdapterBaseCommand {
+public class channel extends BaseCommand {
 
   private static final long TIMEOUT = 60000L;
 
@@ -30,7 +31,7 @@ public class channel extends AdapterBaseCommand {
     return new Pipe<MBeanServerConnection, String>() {
       public void provide(MBeanServerConnection connection) throws Exception {
         try {
-          getChannel(connection, channelName).requestClose(TIMEOUT);
+          InterlokCommandUtils.getChannel(connection, channelName).requestClose(TIMEOUT);
           context.provide("Channel (" + channelName + ") stopped/closed");
         } catch (Exception e) {
           context.provide("Could not stop the channel: " + e.getMessage());
@@ -48,10 +49,10 @@ public class channel extends AdapterBaseCommand {
     return new Pipe<MBeanServerConnection, String>() {
       public void provide(MBeanServerConnection connection) throws Exception {
         try {
-          if (!isStarted(getAdapter(connection))) {
+          if (!InterlokCommandUtils.isStarted(InterlokCommandUtils.getAdapter(connection))) {
             throw new ScriptException("Can't start any channels while the adapter is stopped");
           }
-          getChannel(connection, channelName).requestStart(TIMEOUT);
+          InterlokCommandUtils.getChannel(connection, channelName).requestStart(TIMEOUT);
           context.provide("Channel (" + channelName + ") started");
         } catch (Exception e) {
           context.provide("Could not start the channel: " + e.getMessage());
@@ -70,11 +71,11 @@ public class channel extends AdapterBaseCommand {
       public void provide(MBeanServerConnection connection) throws Exception {
         try {
           TableElement table = new TableElement().rightCellPadding(1);
-          AdapterManagerMBean adapter = getAdapter(connection);
-          table.add(listRow(adapter, showJmxDetails));
-          Collection<ChannelManagerMBean> channels = getAllChannels(connection, adapter);
+          AdapterManagerMBean adapter = InterlokCommandUtils.getAdapter(connection);
+          table.add(InterlokCommandUtils.statusRow(adapter, showJmxDetails));
+          Collection<ChannelManagerMBean> channels = InterlokCommandUtils.getAllChannels(connection, adapter);
           for (ChannelManagerMBean c : channels) {
-            table.add(listRow(c, showJmxDetails));
+            table.add(InterlokCommandUtils.statusRow(c, showJmxDetails));
           }
           context.provide(table);
         } catch (Exception ex) {

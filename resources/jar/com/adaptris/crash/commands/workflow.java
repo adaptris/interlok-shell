@@ -7,6 +7,7 @@ import com.adaptris.crash.commands.parameters.ShowJMXDetailsOptions;
 import org.crsh.cli.Command;
 import org.crsh.cli.Man;
 import org.crsh.cli.Usage;
+import org.crsh.command.BaseCommand;
 import org.crsh.command.InvocationContext;
 import org.crsh.command.Pipe;
 import org.crsh.text.Color;
@@ -19,7 +20,7 @@ import java.util.Collection;
 
 @Usage("Interlok Workflow Management")
 @Man("The workflow commands allowing you to control Interlok worflows (listing, starting, stopping etc).")
-public class workflow extends AdapterBaseCommand {
+public class workflow extends BaseCommand {
 
   @Usage("List workflows")
   @Man("Lists all available Interlok Workflow MBean info:\n" +
@@ -31,14 +32,14 @@ public class workflow extends AdapterBaseCommand {
       public void provide(MBeanServerConnection connection) throws Exception {
         try {
           TableElement table = new TableElement().rightCellPadding(1);
-          AdapterManagerMBean adapter = getAdapter(connection);
-          table.add(listRow(adapter, showJmxDetails));
-          Collection<ChannelManagerMBean> channels = getAllChannels(connection, adapter);
+          AdapterManagerMBean adapter = InterlokCommandUtils.getAdapter(connection);
+          table.add(InterlokCommandUtils.statusRow(adapter, showJmxDetails));
+          Collection<ChannelManagerMBean> channels = InterlokCommandUtils.getAllChannels(connection, adapter);
           for (ChannelManagerMBean channel : channels) {
-            table.add(listRow(channel, showJmxDetails));
-            Collection<WorkflowManagerMBean> workflows = getAllWorkflows(connection, channel);
+            table.add(InterlokCommandUtils.statusRow(channel, showJmxDetails));
+            Collection<WorkflowManagerMBean> workflows = InterlokCommandUtils.getAllWorkflows(connection, channel);
             for (WorkflowManagerMBean workflow : workflows) {
-              table.add(listRow(workflow, showJmxDetails));
+              table.add(InterlokCommandUtils.statusRow(workflow, showJmxDetails));
             }
           }
           context.provide(table);
