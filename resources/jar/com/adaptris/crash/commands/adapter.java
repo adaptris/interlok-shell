@@ -16,7 +16,7 @@ import javax.management.MBeanServerConnection;
 import java.util.HashMap;
 
 @Usage("Interlok Adapter Management")
-@Man("The channel commands allowing you to control the Interlok adapter instance.")
+@Man("The adapter commands allowing you to control the Interlok adapter instance.")
 public class adapter extends BaseCommand {
 
   private static final long TIMEOUT = 60000L;

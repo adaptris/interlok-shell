@@ -4,10 +4,7 @@ import com.adaptris.core.runtime.AdapterManagerMBean;
 import com.adaptris.core.runtime.ChannelManagerMBean;
 import com.adaptris.crash.commands.actions.ChannelCommandAction;
 import com.adaptris.crash.commands.parameters.ShowJMXDetailsOptions;
-import org.crsh.cli.Argument;
-import org.crsh.cli.Command;
-import org.crsh.cli.Man;
-import org.crsh.cli.Usage;
+import org.crsh.cli.*;
 import org.crsh.command.BaseCommand;
 import org.crsh.command.InvocationContext;
 import org.crsh.command.Pipe;
@@ -29,6 +26,7 @@ public class channel extends BaseCommand {
   @Retention(RetentionPolicy.RUNTIME)
   @Argument(name = "channel")
   @Usage("The channel name.")
+  @Required
   private @interface ChannelArgument{
   }
 

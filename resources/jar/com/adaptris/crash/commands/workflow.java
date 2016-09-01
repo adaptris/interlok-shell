@@ -26,12 +26,14 @@ public class workflow extends BaseCommand {
   @Retention(RetentionPolicy.RUNTIME)
   @Option(names = {"c", "channel"})
   @Usage("The channel name.")
+  @Required
   private @interface ChannelOption{
   }
 
   @Retention(RetentionPolicy.RUNTIME)
   @Argument(name = "workflow")
   @Usage("The workflow name.")
+  @Required
   private @interface WorkflowArgument{
   }
 
