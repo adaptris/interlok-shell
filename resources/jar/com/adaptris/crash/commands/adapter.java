@@ -1,13 +1,11 @@
 package com.adaptris.crash.commands;
 
-import com.adaptris.core.runtime.AdapterManagerMBean;
-import com.adaptris.core.runtime.AdapterRegistryMBean;
+import com.adaptris.crash.commands.actions.AdapterCommandAction;
 import com.adaptris.crash.commands.parameters.ShowJMXDetailsOptions;
 import org.crsh.cli.Command;
 import org.crsh.cli.Man;
 import org.crsh.cli.Usage;
 import org.crsh.command.BaseCommand;
-import org.crsh.command.InvocationContext;
 import org.crsh.command.Pipe;
 import org.crsh.text.Color;
 import org.crsh.text.Style;
@@ -15,6 +13,7 @@ import org.crsh.text.ui.LabelElement;
 import org.crsh.text.ui.TableElement;
 
 import javax.management.MBeanServerConnection;
+import java.util.HashMap;
 
 @Usage("Interlok Adapter Management")
 @Man("The channel commands allowing you to control the Interlok adapter instance.")
@@ -30,13 +29,7 @@ public class adapter extends BaseCommand {
   public Pipe<MBeanServerConnection, String> stop() throws Exception {
     return new Pipe<MBeanServerConnection, String>(){
       public void provide(MBeanServerConnection connection) throws Exception {
-        try {
-          AdapterManagerMBean adapter = InterlokCommandUtils.getAdapter(connection);
-          adapter.requestClose(TIMEOUT);
-          context.provide("Adapter (" + adapter.getUniqueId() + ") stopped/closed");
-        } catch (Exception e) {
-          context.provide("Could not stop the adapter: " + e.getMessage());
-        }
+        context.provide(AdapterCommandAction.stop.execute(connection, new HashMap<String, Object>()));
       }
     };
 
@@ -50,13 +43,7 @@ public class adapter extends BaseCommand {
   public Pipe<MBeanServerConnection, String> start() throws Exception {
     return new Pipe<MBeanServerConnection, String>(){
       public void provide(MBeanServerConnection connection) throws Exception {
-        try {
-          AdapterManagerMBean adapter = InterlokCommandUtils.getAdapter(connection);
-          adapter.requestStart(TIMEOUT);
-          context.provide("Adapter (" + adapter.getUniqueId() + ") started");
-        } catch (Exception e) {
-          context.provide("Could not start the adapter: " + e.getMessage());
-        }
+        context.provide(AdapterCommandAction.start.execute(connection, new HashMap<String, Object>()));
       }
     };
   }
@@ -89,13 +76,7 @@ public class adapter extends BaseCommand {
   public Pipe<MBeanServerConnection, String> restart() throws Exception {
     return new Pipe<MBeanServerConnection, String>(){
       public void provide(MBeanServerConnection connection) throws Exception {
-        try {
-          AdapterManagerMBean adapter = InterlokCommandUtils.getAdapter(connection);
-          adapter.requestRestart(TIMEOUT);
-          context.provide("Adapter (" + adapter.getUniqueId() + ") restarted");
-        } catch (Exception e) {
-          context.provide("Could not start the adapter: " + e.getMessage());
-        }
+        context.provide(AdapterCommandAction.restart.execute(connection, new HashMap<String, Object>()));
       }
     };
   }
@@ -108,10 +89,7 @@ public class adapter extends BaseCommand {
   public Pipe<MBeanServerConnection, MBeanServerConnection> reload() throws Exception {
     return new Pipe<MBeanServerConnection, MBeanServerConnection>(){
       public void provide(MBeanServerConnection connection) throws Exception {
-        AdapterRegistryMBean registry = InterlokCommandUtils.getRegistry(connection);
-        registry.reloadFromConfig();
-        AdapterManagerMBean adapter = InterlokCommandUtils.getAdapter(connection);
-        out.println("Adapter (" + adapter.getUniqueId() + ") reloaded.");         
+        out.println(AdapterCommandAction.reload.execute(connection, new HashMap<String, Object>()));
         context.provide(connection);
       }
     };
@@ -125,14 +103,7 @@ public class adapter extends BaseCommand {
   public Pipe<MBeanServerConnection, MBeanServerConnection> reloadVCS() throws Exception {
     return new Pipe<MBeanServerConnection, MBeanServerConnection>(){
       public void provide(MBeanServerConnection connection) throws Exception {
-        AdapterRegistryMBean registry = InterlokCommandUtils.getRegistry(connection);
-        if (registry.getVersionControl() != null) {
-          registry.reloadFromVersionControl();
-          AdapterManagerMBean adapter = InterlokCommandUtils.getAdapter(connection);
-          out.println("Adapter (" + adapter.getUniqueId() + ") reloaded.");
-        } else {
-          throw new Exception("No Version Control");          
-        }
+        out.println(AdapterCommandAction.reloadVCS.execute(connection, new HashMap<String, Object>()));
         context.provide(connection);
       }
     };

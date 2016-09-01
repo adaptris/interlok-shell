@@ -17,7 +17,7 @@ public enum AdapterCommandAction implements CommandAction {
 
   start {
     @Override
-    public String execute(InvocationContext<Object> context, MBeanServerConnection connection, Map<String, Object> arguments) throws ScriptException {
+    public String doExecute(InvocationContext<Object> context, MBeanServerConnection connection, Map<String, Object> arguments) throws ScriptException {
       try {
         AdapterManagerMBean adapter = InterlokCommandUtils.getAdapter(connection);
         adapter.requestStart(TIMEOUT);
@@ -30,7 +30,7 @@ public enum AdapterCommandAction implements CommandAction {
   },
   stop {
     @Override
-    public String execute(InvocationContext<Object> context, MBeanServerConnection connection, Map<String, Object> arguments) {
+    public String doExecute(InvocationContext<Object> context, MBeanServerConnection connection, Map<String, Object> arguments) {
       try {
         AdapterManagerMBean adapter = InterlokCommandUtils.getAdapter(connection);
         adapter.requestClose(TIMEOUT);
@@ -42,7 +42,7 @@ public enum AdapterCommandAction implements CommandAction {
   },
   restart {
     @Override
-    public String execute(InvocationContext<Object> context, MBeanServerConnection connection, Map<String, Object> arguments) {
+    public String doExecute(InvocationContext<Object> context, MBeanServerConnection connection, Map<String, Object> arguments) {
       try {
         AdapterManagerMBean adapter = InterlokCommandUtils.getAdapter(connection);
         adapter.requestRestart(TIMEOUT);
@@ -54,7 +54,7 @@ public enum AdapterCommandAction implements CommandAction {
   },
   reload {
     @Override
-    public String execute(InvocationContext<Object> context, MBeanServerConnection connection, Map<String, Object> arguments) {
+    public String doExecute(InvocationContext<Object> context, MBeanServerConnection connection, Map<String, Object> arguments) {
       try {
         AdapterRegistryMBean registry = InterlokCommandUtils.getRegistry(connection);
         registry.reloadFromConfig();
@@ -67,7 +67,7 @@ public enum AdapterCommandAction implements CommandAction {
   },
   reloadVCS{
     @Override
-    public String execute(InvocationContext<Object> context, MBeanServerConnection connection, Map<String, Object> arguments) throws ScriptException {
+    public String doExecute(InvocationContext<Object> context, MBeanServerConnection connection, Map<String, Object> arguments) throws ScriptException {
       try {
 
         AdapterRegistryMBean registry = InterlokCommandUtils.getRegistry(connection);
@@ -86,10 +86,10 @@ public enum AdapterCommandAction implements CommandAction {
 
   status {
     @Override
-    public String execute(InvocationContext<Object> context, MBeanServerConnection connection, Map<String, Object> arguments) throws ScriptException {
+    public String doExecute(InvocationContext<Object> context, MBeanServerConnection connection, Map<String, Object> arguments) throws ScriptException {
       try {
-        if(!validateArguments(arguments)){
-          throw new ScriptException(SHOW_JMX_DETAILS_KEY + " argument is required");
+        if (context == null){
+          throw new UnsupportedOperationException("AdapterCommandAction." + status + " must be called with an invocation context");
         }
         Boolean showJmxDetails = (Boolean)arguments.get(SHOW_JMX_DETAILS_KEY);
         TableElement table = new TableElement().rightCellPadding(1);
@@ -108,16 +108,45 @@ public enum AdapterCommandAction implements CommandAction {
       } catch (Exception e) {
         throw new ScriptException(e.getMessage(),e);
       }
+
+
     }
 
     @Override
     public boolean validateArguments(Map<String, Object> arguments) {
       return arguments.containsKey(SHOW_JMX_DETAILS_KEY) && (arguments.get(SHOW_JMX_DETAILS_KEY) == null || arguments.get(SHOW_JMX_DETAILS_KEY) instanceof Boolean);
     }
+
+    @Override
+    public String argumentWarning(){
+      return SHOW_JMX_DETAILS_KEY + " argument is not set.";
+    }
   };
 
   public static final String SHOW_JMX_DETAILS_KEY = "showJMXDetails";
   private static final long TIMEOUT = 60000L;
+
+  @Override
+  public final String execute(InvocationContext<Object> context, MBeanServerConnection connection, Map<String, Object> arguments) throws ScriptException{
+    if(!validateArguments(arguments)){
+      throw new ScriptException(argumentWarning());
+    }
+    return doExecute(context, connection, arguments);
+  }
+
+  @Override
+  public final String execute(MBeanServerConnection connection, Map<String, Object> arguments) throws ScriptException{
+    if(!validateArguments(arguments)){
+      throw new ScriptException(argumentWarning());
+    }
+    return doExecute(null, connection, arguments);
+  }
+
+  public abstract String doExecute(InvocationContext<Object> context, MBeanServerConnection connection, Map<String, Object> arguments) throws ScriptException;
+
+  public String argumentWarning(){
+    return "";
+  }
 
   public boolean validateArguments(Map<String, Object> arguments){
     return true;

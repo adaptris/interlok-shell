@@ -63,6 +63,14 @@ public enum ChannelCommandAction implements CommandAction {
     return doExecute(context, connection, arguments);
   }
 
+  @Override
+  public final String execute(MBeanServerConnection connection, Map<String, Object> arguments) throws ScriptException{
+    if(!validateArguments(arguments)){
+      throw new ScriptException(argumentWarning());
+    }
+    return doExecute(null, connection, arguments);
+  }
+
   public boolean validateArguments(Map<String, Object> arguments) {
     return arguments.containsKey(CHANNEL_NAME_KEY) && arguments.get(CHANNEL_NAME_KEY) != null && arguments.get(CHANNEL_NAME_KEY) instanceof String;
   }
