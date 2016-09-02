@@ -6,8 +6,11 @@ import com.adaptris.crash.commands.actions.ChannelCommandAction;
 import com.adaptris.crash.commands.actions.WorkflowCommandAction;
 import com.adaptris.crash.commands.completion.ChannelCompletion;
 import com.adaptris.crash.commands.completion.WorkflowCompletion;
+import com.adaptris.crash.commands.parameters.PasswordOption;
 import com.adaptris.crash.commands.parameters.ShowJMXDetailsOptions;
+import com.adaptris.crash.commands.parameters.UsernameOption;
 import groovy.util.ScriptException;
+import org.apache.commons.lang.StringUtils;
 import org.crsh.cli.*;
 import org.crsh.cli.descriptor.ParameterDescriptor;
 import org.crsh.cli.spi.Completer;
@@ -69,14 +72,15 @@ public class interlok extends BaseCommand implements Completer{
 
   @Usage("connect to a JMX connection")
   @Man("Connect to JMX with a JMXServiceURL:\n" +
-      "% interlok connect service:jmx:jmxmp://remote.server.com:5555\n" +
+      "% interlok connect --username <username> --password <password> service:jmx:jmxmp://remote.server.com:5555\n" +
       "...\n" +
       "Connect to the Local JMX MBeanServerConnection:\n" +
       "% interlok connect --locally\n" +
       "...\n")
   @Command
   public String connect(
-      @Usage("JMX service URL") @Argument(name = "jmxServiceUrl") String jmxServiceUrl, @LocalConnectionOption Boolean localConnection) throws IOException, ScriptException {
+      @Usage("JMX service URL") @Argument(name = "jmxServiceUrl") String jmxServiceUrl, @LocalConnectionOption Boolean localConnection,
+      @UsernameOption String username, @PasswordOption String password) throws IOException, ScriptException {
     Map<String, Object> session = context.getSession();
     if (session.containsKey(M_BEAN_SERVER_CONNECTION_KEY)) {
       throw new ScriptException("Already connected");
@@ -88,7 +92,12 @@ public class interlok extends BaseCommand implements Completer{
     if (jmxServiceUrl == null) {
       throw new ScriptException("Connection string is mandatory");
     }
-    JMXConnector jmxConnector = JMXConnectorFactory.connect(new JMXServiceURL(jmxServiceUrl), null);
+    Map<String, Object> env = new HashMap<String, Object>();
+    if (StringUtils.isNotBlank(username) && StringUtils.isNotBlank(password)){
+      env.put("jmx.remote.profiles", "SASL/PLAIN");
+      env.put(JMXConnector.CREDENTIALS, new String[] {username, password});
+    }
+    JMXConnector jmxConnector = JMXConnectorFactory.connect(new JMXServiceURL(jmxServiceUrl), env);
     session.put(JMX_CONNECTOR_KEY, jmxConnector);
     session.put(M_BEAN_SERVER_CONNECTION_KEY, jmxConnector.getMBeanServerConnection());
     return "Connected to : "+ jmxServiceUrl +"\n";
