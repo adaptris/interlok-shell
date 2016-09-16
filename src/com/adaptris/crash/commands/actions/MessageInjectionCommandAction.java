@@ -8,6 +8,9 @@ import org.crsh.command.InvocationContext;
 import org.crsh.command.ScriptException;
 
 import javax.management.MBeanServerConnection;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -82,6 +85,7 @@ public enum MessageInjectionCommandAction implements NamedCommandAction {
   public static final String WORKFLOW_NAME_KEY = "workflowName";
   public static final String HEADERS_KEY = "headers";
   public static final String PAYLOAD_KEY = "payload";
+  public static final String PAYLOAD_FILE_KEY = "payloadFile";
   public static final String CONTENT_ENCODING_KEY = "contentType";
 
   private static Map<String, MessageInjectionCommandAction> map = new HashMap<String, MessageInjectionCommandAction>();
@@ -135,8 +139,13 @@ public enum MessageInjectionCommandAction implements NamedCommandAction {
     return (Properties)arguments.get(HEADERS_KEY);
   }
 
-  String payload(Map<String, Object> arguments){
-    return (String)arguments.get(PAYLOAD_KEY);
+  String payload(Map<String, Object> arguments) throws IOException {
+    if(arguments.get(PAYLOAD_FILE_KEY) != null){
+      File file = (File)arguments.get(PAYLOAD_FILE_KEY);
+      return new String(Files.readAllBytes(file.toPath()));
+    } else {
+      return (String) arguments.get(PAYLOAD_KEY);
+    }
   }
 
   String contentEncoding(Map<String, Object> arguments){

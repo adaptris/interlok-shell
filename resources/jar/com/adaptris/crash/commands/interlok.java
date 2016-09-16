@@ -24,6 +24,7 @@ import javax.management.MBeanServerConnection;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
+import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -90,9 +91,18 @@ public class interlok extends BaseCommand implements Completer{
 
   @Retention(RetentionPolicy.RUNTIME)
   @Option(names = {"p", "payload"})
-  @Usage("message payload")
+  @Usage("message payload\n" +
+      "NOTE: if both --payload and --payload-file are set the --payload-file will be used.")
   private @interface PayloadOption{
   }
+
+  @Retention(RetentionPolicy.RUNTIME)
+  @Option(names = {"f", "payload-file"})
+  @Usage("file to be used for message payload\n" +
+      "NOTE: if both --payload and --payload-file are set the --payload-file will be used.")
+  private @interface PayloadFileOption{
+  }
+
 
   @Retention(RetentionPolicy.RUNTIME)
   @Option(names = {"h", "headers"})
@@ -226,11 +236,12 @@ public class interlok extends BaseCommand implements Completer{
   @Named("message-inject")
   public String messageInject(InvocationContext<Object> invocationContext, @MessageInjectionCommandArgument String command
       ,@WorkflowOption String workflowName,  @ChannelOption String channelName,  @PayloadOption String payload
-      ,@HeadersOption Properties headers, @ContentEncodingOption String contentEncoding) throws ScriptException {
+      ,@HeadersOption Properties headers, @ContentEncodingOption String contentEncoding, @PayloadFileOption File payloadFile) throws ScriptException {
     Map<String, Object> arguments = new HashMap<String, Object>();
     arguments.put(MessageInjectionCommandAction.CHANNEL_NAME_KEY, channelName);
     arguments.put(MessageInjectionCommandAction.WORKFLOW_NAME_KEY, workflowName);
     arguments.put(MessageInjectionCommandAction.PAYLOAD_KEY, payload);
+    arguments.put(MessageInjectionCommandAction.PAYLOAD_FILE_KEY, payloadFile);
     arguments.put(MessageInjectionCommandAction.CONTENT_ENCODING_KEY, contentEncoding);
     arguments.put(MessageInjectionCommandAction.HEADERS_KEY, headers);
     return MessageInjectionCommandAction.valueOfFromCommandName(command).execute(invocationContext, getMBeanServerConnection(), arguments);
