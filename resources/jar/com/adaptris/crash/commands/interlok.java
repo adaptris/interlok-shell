@@ -40,6 +40,8 @@ public class interlok extends BaseCommand implements Completer{
   private static String JMX_CONNECTOR_KEY = "jmxConnector";
   private static String M_BEAN_SERVER_CONNECTION_KEY = "mBeanServerConnection";
 
+  private static final String PAYLOAD_NOTE = "NOTE: Payload options are read in the following order --payload-file, --payload-random, --payload-string, if one is found the others will be ignored.";
+
   @Retention(RetentionPolicy.RUNTIME)
   @Usage("connects to the local JMX MBeanServerConnection")
   @Man("Connects to the local JMX MBeanServerConnection")
@@ -90,17 +92,24 @@ public class interlok extends BaseCommand implements Completer{
   }
 
   @Retention(RetentionPolicy.RUNTIME)
-  @Option(names = {"p", "payload"})
+  @Option(names = {"p", "payload-string"})
   @Usage("message payload\n" +
-      "NOTE: if both --payload and --payload-file are set the --payload-file will be used.")
+      PAYLOAD_NOTE)
   private @interface PayloadOption{
   }
 
   @Retention(RetentionPolicy.RUNTIME)
   @Option(names = {"f", "payload-file"})
   @Usage("file to be used for message payload\n" +
-      "NOTE: if both --payload and --payload-file are set the --payload-file will be used.")
+      PAYLOAD_NOTE)
   private @interface PayloadFileOption{
+  }
+
+  @Retention(RetentionPolicy.RUNTIME)
+  @Option(names = {"r", "payload-random"})
+  @Usage("generated payload with random bytes\n" +
+      PAYLOAD_NOTE)
+  private @interface PayloadRandomOption{
   }
 
 
@@ -236,12 +245,14 @@ public class interlok extends BaseCommand implements Completer{
   @Named("message-inject")
   public String messageInject(InvocationContext<Object> invocationContext, @MessageInjectionCommandArgument String command
       ,@WorkflowOption String workflowName,  @ChannelOption String channelName,  @PayloadOption String payload
-      ,@HeadersOption Properties headers, @ContentEncodingOption String contentEncoding, @PayloadFileOption File payloadFile) throws ScriptException {
+      ,@HeadersOption Properties headers, @ContentEncodingOption String contentEncoding, @PayloadFileOption File payloadFile
+      , @PayloadRandomOption Integer payloadRandomBytes) throws ScriptException {
     Map<String, Object> arguments = new HashMap<String, Object>();
     arguments.put(MessageInjectionCommandAction.CHANNEL_NAME_KEY, channelName);
     arguments.put(MessageInjectionCommandAction.WORKFLOW_NAME_KEY, workflowName);
     arguments.put(MessageInjectionCommandAction.PAYLOAD_KEY, payload);
     arguments.put(MessageInjectionCommandAction.PAYLOAD_FILE_KEY, payloadFile);
+    arguments.put(MessageInjectionCommandAction.PAYLOAD_RANDOM_KEY, payloadRandomBytes);
     arguments.put(MessageInjectionCommandAction.CONTENT_ENCODING_KEY, contentEncoding);
     arguments.put(MessageInjectionCommandAction.HEADERS_KEY, headers);
     return MessageInjectionCommandAction.valueOfFromCommandName(command).execute(invocationContext, getMBeanServerConnection(), arguments);

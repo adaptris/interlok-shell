@@ -15,6 +15,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ThreadLocalRandom;
 
 public enum MessageInjectionCommandAction implements NamedCommandAction {
 
@@ -86,6 +87,7 @@ public enum MessageInjectionCommandAction implements NamedCommandAction {
   public static final String HEADERS_KEY = "headers";
   public static final String PAYLOAD_KEY = "payload";
   public static final String PAYLOAD_FILE_KEY = "payloadFile";
+  public static final String PAYLOAD_RANDOM_KEY = "payloadRandom";
   public static final String CONTENT_ENCODING_KEY = "contentType";
 
   private static Map<String, MessageInjectionCommandAction> map = new HashMap<String, MessageInjectionCommandAction>();
@@ -143,6 +145,11 @@ public enum MessageInjectionCommandAction implements NamedCommandAction {
     if(arguments.get(PAYLOAD_FILE_KEY) != null){
       File file = (File)arguments.get(PAYLOAD_FILE_KEY);
       return new String(Files.readAllBytes(file.toPath()));
+    } else if (arguments.get(PAYLOAD_RANDOM_KEY) != null) {
+      Integer byteCount = (Integer)arguments.get(PAYLOAD_RANDOM_KEY);
+      final byte[] bytes = new byte[byteCount];
+      ThreadLocalRandom.current().nextBytes(bytes);
+      return new String(bytes);
     } else {
       return (String) arguments.get(PAYLOAD_KEY);
     }
