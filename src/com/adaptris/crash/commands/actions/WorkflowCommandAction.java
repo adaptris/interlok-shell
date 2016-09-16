@@ -13,11 +13,11 @@ public enum WorkflowCommandAction implements CommandAction {
     public String doExecute(InvocationContext<Object> context, MBeanServerConnection connection, Map<String, Object> arguments) throws ScriptException {
       try {
         if (!InterlokCommandUtils.isStarted(InterlokCommandUtils.getAdapter(connection))) {
-          throw new ScriptException("Can't start any workflow while the adapter is stopped");
+          throw new ScriptException("Can't start a workflow while the adapter is stopped");
         }
         String channelName = channelName(arguments);
         if (!InterlokCommandUtils.isStarted(InterlokCommandUtils.getChannel(connection, channelName))) {
-          throw new ScriptException("Can't start any workflow while the adapter is stopped");
+          throw new ScriptException("Can't start a workflow while the channel is stopped");
         }
         String workflowName = workflowName(arguments);
         InterlokCommandUtils.getWorkflow(connection, channelName, workflowName).requestStart(TIMEOUT);
@@ -45,11 +45,11 @@ public enum WorkflowCommandAction implements CommandAction {
     public String doExecute(InvocationContext<Object> context, MBeanServerConnection connection, Map<String, Object> arguments) throws ScriptException {
       try {
         if (!InterlokCommandUtils.isStarted(InterlokCommandUtils.getAdapter(connection))) {
-          throw new ScriptException("Can't start any workflow while the adapter is stopped");
+          throw new ScriptException("Can't start a workflow while the adapter is stopped");
         }
         String channelName = channelName(arguments);
         if (!InterlokCommandUtils.isStarted(InterlokCommandUtils.getChannel(connection, channelName))) {
-          throw new ScriptException("Can't start any workflow while the adapter is stopped");
+          throw new ScriptException("Can't start a workflow while the channel is stopped");
         }
         String workflowName = workflowName(arguments);
         InterlokCommandUtils.getWorkflow(connection, channelName, workflowName).requestRestart(TIMEOUT);
