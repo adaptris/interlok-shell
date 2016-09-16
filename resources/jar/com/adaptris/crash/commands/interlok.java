@@ -3,6 +3,7 @@ package com.adaptris.crash.commands;
 import com.adaptris.core.util.JmxHelper;
 import com.adaptris.crash.commands.actions.AdapterCommandAction;
 import com.adaptris.crash.commands.actions.ChannelCommandAction;
+import com.adaptris.crash.commands.actions.MessageInjectionCommandAction;
 import com.adaptris.crash.commands.actions.WorkflowCommandAction;
 import com.adaptris.crash.commands.completion.ChannelCompletion;
 import com.adaptris.crash.commands.completion.WorkflowCompletion;
@@ -68,6 +69,13 @@ public class interlok extends BaseCommand implements Completer{
   @Usage("workflow name")
   @Required
   private @interface WorkflowArgument{
+  }
+
+  @Retention(RetentionPolicy.RUNTIME)
+  @Option(names = {"w", "workflow"}, completer = interlok.class)
+  @Usage("workflow name")
+  @Required
+  private @interface WorkflowOption{
   }
 
   @Usage("connect to a JMX connection")
@@ -178,12 +186,26 @@ public class interlok extends BaseCommand implements Completer{
     return command.execute(invocationContext, getMBeanServerConnection(), arguments);
   }
 
+  @Usage("Interlok Workflow Message Injection")
+  @Man("Send message to Interlok workflow:\n" +
+      "% interlok inject-message --channel <channel name> --workflow <workflow name> send\n" +
+      "...\n")
+  @Command
+  @Named("inject-message")
+  public String injectMessage(InvocationContext<Object> invocationContext, @CommandArgument MessageInjectionCommandAction command,
+                         @WorkflowOption String workflowName,  @ChannelOption String channelName) throws ScriptException {
+    Map<String, Object> arguments = new HashMap<String, Object>();
+    arguments.put(MessageInjectionCommandAction.CHANNEL_NAME_KEY, channelName);
+    arguments.put(MessageInjectionCommandAction.WORKFLOW_NAME_KEY, workflowName);
+    return command.execute(invocationContext, getMBeanServerConnection(), arguments);
+  }
+
 
   @Override
   public Completion complete(ParameterDescriptor parameter, String prefix) throws Exception {
     if (parameter.getAnnotation() instanceof ChannelArgument || parameter.getAnnotation() instanceof ChannelOption) {
       return new ChannelCompletion(getMBeanServerConnection()).complete(parameter, prefix);
-    } else if (parameter.getAnnotation() instanceof WorkflowArgument){
+    } else if (parameter.getAnnotation() instanceof WorkflowArgument || parameter.getAnnotation() instanceof WorkflowOption){
       return new WorkflowCompletion(getMBeanServerConnection()).complete(parameter,prefix);
     } else {
       return Completion.create();
