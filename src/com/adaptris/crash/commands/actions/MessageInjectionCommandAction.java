@@ -26,8 +26,25 @@ public enum MessageInjectionCommandAction implements NamedCommandAction {
         }
         String workflowName = workflowName(arguments);
 
-        InterlokCommandUtils.getWorkflow(connection, channelName, workflowName).process(createMessage());
-        return "Message Injected into Workflow (" + workflowName + ")\n";
+        SerializableMessage message = InterlokCommandUtils.getWorkflow(connection, channelName, workflowName).process(createMessage());
+        StringBuilder sb = new StringBuilder();
+        sb.append("Message Injected into Workflow (");
+        sb.append(workflowName);
+        sb.append(")\n");
+        sb.append("\n");
+        sb.append("Headers:\n");
+        sb.append("\n");
+        for(Map.Entry<String,String> headers : message.getMessageHeaders().entrySet()){
+          sb.append(headers.getKey());
+          sb.append(" : ");
+          sb.append(headers.getValue());
+          sb.append("\n");
+        }
+        sb.append("\n");
+        sb.append("Payload:\n");
+        sb.append("\n");
+        sb.append(message.getContent());
+        return sb.toString();
       } catch (Exception e) {
         throw new ScriptException("Could not inject message into the workflow: " + e.getMessage(), e);
       }
@@ -98,7 +115,7 @@ public enum MessageInjectionCommandAction implements NamedCommandAction {
   abstract String doExecute(InvocationContext<Object> context, MBeanServerConnection connection, Map<String, Object> arguments) throws ScriptException;
 
   String argumentWarning(){
-    return "";
+    return WORKFLOW_NAME_KEY + " and/or " + CHANNEL_NAME_KEY + " arguments are not set.";
   }
 
   String workflowName(Map<String, Object> arguments){
