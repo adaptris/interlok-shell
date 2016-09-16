@@ -1,11 +1,9 @@
 package com.adaptris.crash.commands;
 
 import com.adaptris.core.util.JmxHelper;
-import com.adaptris.crash.commands.actions.AdapterCommandAction;
-import com.adaptris.crash.commands.actions.ChannelCommandAction;
-import com.adaptris.crash.commands.actions.MessageInjectionCommandAction;
-import com.adaptris.crash.commands.actions.WorkflowCommandAction;
+import com.adaptris.crash.commands.actions.*;
 import com.adaptris.crash.commands.completion.ChannelCompletion;
+import com.adaptris.crash.commands.completion.NamedCommandCompletion;
 import com.adaptris.crash.commands.completion.WorkflowCompletion;
 import com.adaptris.crash.commands.parameters.PasswordOption;
 import com.adaptris.crash.commands.parameters.ShowJMXDetailsOptions;
@@ -76,6 +74,14 @@ public class interlok extends BaseCommand implements Completer{
   @Usage("workflow name")
   @Required
   private @interface WorkflowOption{
+  }
+
+  @Retention(RetentionPolicy.RUNTIME)
+  @Argument(name = "command", completer = interlok.class)
+  @Usage("command action - send/send-async")
+  @Required
+  private @interface MessageInjectionCommandArgument{
+
   }
 
   @Usage("connect to a JMX connection")
@@ -189,15 +195,19 @@ public class interlok extends BaseCommand implements Completer{
   @Usage("Interlok Workflow Message Injection")
   @Man("Send message to Interlok workflow:\n" +
       "% interlok inject-message --channel <channel name> --workflow <workflow name> send\n" +
-      "...\n")
+      "...\n" +
+      "Send an asynchronous message to Interlok workflow:\n" +
+      "% interlok inject-message --channel <channel name> --workflow <workflow name> send-async\n" +
+      "...\n"
+  )
   @Command
   @Named("inject-message")
-  public String injectMessage(InvocationContext<Object> invocationContext, @CommandArgument @Usage("command action - send") MessageInjectionCommandAction command,
+  public String injectMessage(InvocationContext<Object> invocationContext, @MessageInjectionCommandArgument String command,
                          @WorkflowOption String workflowName,  @ChannelOption String channelName) throws ScriptException {
     Map<String, Object> arguments = new HashMap<String, Object>();
     arguments.put(MessageInjectionCommandAction.CHANNEL_NAME_KEY, channelName);
     arguments.put(MessageInjectionCommandAction.WORKFLOW_NAME_KEY, workflowName);
-    return command.execute(invocationContext, getMBeanServerConnection(), arguments);
+    return MessageInjectionCommandAction.valueOfFromCommandName(command).execute(invocationContext, getMBeanServerConnection(), arguments);
   }
 
 
@@ -207,6 +217,8 @@ public class interlok extends BaseCommand implements Completer{
       return new ChannelCompletion(getMBeanServerConnection()).complete(parameter, prefix);
     } else if (parameter.getAnnotation() instanceof WorkflowArgument || parameter.getAnnotation() instanceof WorkflowOption){
       return new WorkflowCompletion(getMBeanServerConnection()).complete(parameter,prefix);
+    } else if (parameter.getAnnotation() instanceof MessageInjectionCommandArgument) {
+      return new NamedCommandCompletion(MessageInjectionCommandAction.class).complete(parameter,prefix);
     } else {
       return Completion.create();
     }

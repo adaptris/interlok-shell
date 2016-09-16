@@ -2,14 +2,16 @@ package com.adaptris.crash.commands.actions;
 
 import com.adaptris.core.SerializableAdaptrisMessage;
 import com.adaptris.crash.commands.InterlokCommandUtils;
+import com.adaptris.interlok.types.SerializableMessage;
 import com.adaptris.util.GuidGenerator;
 import org.crsh.command.InvocationContext;
 import org.crsh.command.ScriptException;
 
 import javax.management.MBeanServerConnection;
+import java.util.HashMap;
 import java.util.Map;
 
-public enum MessageInjectionCommandAction implements CommandAction {
+public enum MessageInjectionCommandAction implements NamedCommandAction {
 
   send {
     @Override
@@ -30,10 +32,47 @@ public enum MessageInjectionCommandAction implements CommandAction {
         throw new ScriptException("Could not inject message into the workflow: " + e.getMessage(), e);
       }
     }
+  },
+
+  sendAsync{
+    @Override
+    String doExecute(InvocationContext<Object> context, MBeanServerConnection connection, Map<String, Object> arguments) throws ScriptException {
+      try {
+        if (!InterlokCommandUtils.isStarted(InterlokCommandUtils.getAdapter(connection))) {
+          throw new ScriptException("Can't send a message to a workflow while the adapter is stopped");
+        }
+        String channelName = channelName(arguments);
+        if (!InterlokCommandUtils.isStarted(InterlokCommandUtils.getChannel(connection, channelName))) {
+          throw new ScriptException("Can't send a message to a workflow while the channel is stopped");
+        }
+        String workflowName = workflowName(arguments);
+
+        InterlokCommandUtils.getWorkflow(connection, channelName, workflowName).processAsync(createMessage());
+        return "Message Injected into Workflow (" + workflowName + ")\n";
+      } catch (Exception e) {
+        throw new ScriptException("Could not inject message into the workflow: " + e.getMessage(), e);
+      }
+    }
+
+    public String commandName(){
+      return "send-async";
+    }
   };
 
   public static final String CHANNEL_NAME_KEY = "channelName";
   public static final String WORKFLOW_NAME_KEY = "workflowName";
+
+  private static Map<String, MessageInjectionCommandAction> map = new HashMap<String, MessageInjectionCommandAction>();
+
+  static {
+    for (MessageInjectionCommandAction e : MessageInjectionCommandAction.values()) {
+      map.put(e.commandName(), e);
+    }
+  }
+
+  public static MessageInjectionCommandAction valueOfFromCommandName(String commandName) {
+    return map.get(commandName);
+  }
 
   @Override
   public String execute(InvocationContext<Object> context, MBeanServerConnection connection, Map<String, Object> arguments) throws ScriptException {
@@ -70,6 +109,9 @@ public enum MessageInjectionCommandAction implements CommandAction {
     return (String)arguments.get(CHANNEL_NAME_KEY);
   }
 
+  public String commandName(){
+    return name();
+  }
 
   SerializableAdaptrisMessage createMessage(){
     SerializableAdaptrisMessage msg = new SerializableAdaptrisMessage();
