@@ -192,7 +192,7 @@ public class interlok extends BaseCommand implements Completer{
       "...\n")
   @Command
   @Named("inject-message")
-  public String injectMessage(InvocationContext<Object> invocationContext, @CommandArgument MessageInjectionCommandAction command,
+  public String injectMessage(InvocationContext<Object> invocationContext, @CommandArgument @Usage("command action - send") MessageInjectionCommandAction command,
                          @WorkflowOption String workflowName,  @ChannelOption String channelName) throws ScriptException {
     Map<String, Object> arguments = new HashMap<String, Object>();
     arguments.put(MessageInjectionCommandAction.CHANNEL_NAME_KEY, channelName);
