@@ -1,7 +1,10 @@
 package com.adaptris.crash.commands;
 
 import com.adaptris.core.util.JmxHelper;
-import com.adaptris.crash.commands.actions.*;
+import com.adaptris.crash.commands.actions.AdapterCommandAction;
+import com.adaptris.crash.commands.actions.ChannelCommandAction;
+import com.adaptris.crash.commands.actions.MessageInjectionCommandAction;
+import com.adaptris.crash.commands.actions.WorkflowCommandAction;
 import com.adaptris.crash.commands.completion.ChannelCompletion;
 import com.adaptris.crash.commands.completion.NamedCommandCompletion;
 import com.adaptris.crash.commands.completion.WorkflowCompletion;
@@ -25,7 +28,9 @@ import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 @Usage("Interlok Management Command")
 @Man("The interlok management command is monolithic style command allowing control of adapter, channels and workflows.")
@@ -81,7 +86,24 @@ public class interlok extends BaseCommand implements Completer{
   @Usage("command action - send/send-async")
   @Required
   private @interface MessageInjectionCommandArgument{
+  }
 
+  @Retention(RetentionPolicy.RUNTIME)
+  @Option(names = {"p", "payload"})
+  @Usage("message payload")
+  private @interface PayloadOption{
+  }
+
+  @Retention(RetentionPolicy.RUNTIME)
+  @Option(names = {"h", "headers"})
+  @Usage("message headers (\"key1=value1;key2=value2\")")
+  private @interface HeadersOption{
+  }
+
+  @Retention(RetentionPolicy.RUNTIME)
+  @Option(names = {"e", "content-encoding"})
+  @Usage("message content encoding")
+  private @interface ContentEncodingOption{
   }
 
   @Usage("connect to a JMX connection")
@@ -194,22 +216,25 @@ public class interlok extends BaseCommand implements Completer{
 
   @Usage("Interlok Workflow Message Injection")
   @Man("Send message to Interlok workflow:\n" +
-      "% interlok inject-message --channel <channel name> --workflow <workflow name> send\n" +
+      "% interlok message-inject --channel <channel name> --workflow <workflow name> send\n" +
       "...\n" +
       "Send an asynchronous message to Interlok workflow:\n" +
-      "% interlok inject-message --channel <channel name> --workflow <workflow name> send-async\n" +
+      "% interlok message-inject --channel <channel name> --workflow <workflow name> send-async\n" +
       "...\n"
   )
   @Command
-  @Named("inject-message")
-  public String injectMessage(InvocationContext<Object> invocationContext, @MessageInjectionCommandArgument String command,
-                         @WorkflowOption String workflowName,  @ChannelOption String channelName) throws ScriptException {
+  @Named("message-inject")
+  public String messageInject(InvocationContext<Object> invocationContext, @MessageInjectionCommandArgument String command
+      ,@WorkflowOption String workflowName,  @ChannelOption String channelName,  @PayloadOption String payload
+      ,@HeadersOption Properties headers, @ContentEncodingOption String contentEncoding) throws ScriptException {
     Map<String, Object> arguments = new HashMap<String, Object>();
     arguments.put(MessageInjectionCommandAction.CHANNEL_NAME_KEY, channelName);
     arguments.put(MessageInjectionCommandAction.WORKFLOW_NAME_KEY, workflowName);
+    arguments.put(MessageInjectionCommandAction.PAYLOAD_KEY, payload);
+    arguments.put(MessageInjectionCommandAction.CONTENT_ENCODING_KEY, contentEncoding);
+    arguments.put(MessageInjectionCommandAction.HEADERS_KEY, headers);
     return MessageInjectionCommandAction.valueOfFromCommandName(command).execute(invocationContext, getMBeanServerConnection(), arguments);
   }
-
 
   @Override
   public Completion complete(ParameterDescriptor parameter, String prefix) throws Exception {

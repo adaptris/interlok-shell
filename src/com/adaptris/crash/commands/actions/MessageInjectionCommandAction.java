@@ -8,8 +8,10 @@ import org.crsh.command.InvocationContext;
 import org.crsh.command.ScriptException;
 
 import javax.management.MBeanServerConnection;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 public enum MessageInjectionCommandAction implements NamedCommandAction {
 
@@ -26,7 +28,7 @@ public enum MessageInjectionCommandAction implements NamedCommandAction {
         }
         String workflowName = workflowName(arguments);
 
-        SerializableMessage message = InterlokCommandUtils.getWorkflow(connection, channelName, workflowName).process(createMessage());
+        SerializableMessage message = InterlokCommandUtils.getWorkflow(connection, channelName, workflowName).process(createMessage(headers(arguments), payload(arguments), contentEncoding(arguments)));
         StringBuilder sb = new StringBuilder();
         sb.append("Message Injected into Workflow (");
         sb.append(workflowName);
@@ -64,7 +66,7 @@ public enum MessageInjectionCommandAction implements NamedCommandAction {
         }
         String workflowName = workflowName(arguments);
 
-        InterlokCommandUtils.getWorkflow(connection, channelName, workflowName).processAsync(createMessage());
+        InterlokCommandUtils.getWorkflow(connection, channelName, workflowName).processAsync(createMessage(headers(arguments), payload(arguments), contentEncoding(arguments)));
         return "Message Injected into Workflow (" + workflowName + ")\n";
       } catch (Exception e) {
         throw new ScriptException("Could not inject message into the workflow: " + e.getMessage(), e);
@@ -78,6 +80,9 @@ public enum MessageInjectionCommandAction implements NamedCommandAction {
 
   public static final String CHANNEL_NAME_KEY = "channelName";
   public static final String WORKFLOW_NAME_KEY = "workflowName";
+  public static final String HEADERS_KEY = "headers";
+  public static final String PAYLOAD_KEY = "payload";
+  public static final String CONTENT_ENCODING_KEY = "contentType";
 
   private static Map<String, MessageInjectionCommandAction> map = new HashMap<String, MessageInjectionCommandAction>();
 
@@ -126,17 +131,39 @@ public enum MessageInjectionCommandAction implements NamedCommandAction {
     return (String)arguments.get(CHANNEL_NAME_KEY);
   }
 
+  Properties headers(Map<String, Object> arguments){
+    return (Properties)arguments.get(HEADERS_KEY);
+  }
+
+  String payload(Map<String, Object> arguments){
+    return (String)arguments.get(PAYLOAD_KEY);
+  }
+
+  String contentEncoding(Map<String, Object> arguments){
+    return (String)arguments.get(CONTENT_ENCODING_KEY);
+  }
+
   public String commandName(){
     return name();
   }
 
-  SerializableAdaptrisMessage createMessage(){
+  SerializableAdaptrisMessage createMessage(Properties headers, String payload, String contentEncoding){
     SerializableAdaptrisMessage msg = new SerializableAdaptrisMessage();
     GuidGenerator guid = new GuidGenerator();
     msg.setUniqueId(guid.getUUID());
-    msg.setContent("hello world");
-    msg.setContentEncoding("UTF-8");
-    msg.addMetadata("my-key", "myvalue");
+    if(headers != null){
+      Enumeration e = headers.propertyNames();
+      while (e.hasMoreElements()) {
+        String key = (String) e.nextElement();
+        msg.addMetadata(key, headers.getProperty(key));
+      }
+    }
+    if(payload != null) {
+      msg.setContent(payload);
+    }
+    if(contentEncoding != null){
+      msg.setContentEncoding(contentEncoding);
+    }
     return msg;
   }
 }
