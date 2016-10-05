@@ -1,4 +1,4 @@
-﻿<project basedir="." default="compile" name="crash" xmlns:adapter="uri:adapter" xmlns:ivy="antlib:org.apache.ivy.ant">
+﻿<project basedir="." default="compile" name="shell" xmlns:adapter="uri:adapter" xmlns:ivy="antlib:org.apache.ivy.ant">
   <property file="build.properties"/>
   <property file="ivy.properties"/>
   <import file="${basedir}/ivy/ant-ivy-includes.xml"/> <!-- Ivy tasks -->
@@ -43,7 +43,7 @@
 
     <property name="build.tmp.dir" value="${build.dir}/tmp"/>
     <property name="jar.version"            value="${today}-${user.name}"/>
-    <property name="project.name"           value="adp-${ant.project.name}"/>
+    <property name="project.name"           value="interlok-${ant.project.name}"/>
 
     <property name="project.dist.dir" value="${build.dir}/dist"/>
     <property name="project.jar.name" value = "${project.name}.jar"/>
@@ -54,7 +54,7 @@
   </target>
 
 <!-- clean -->
-  <target name="clean" depends="init" description="Remove build artifacts">
+  <target name="clean" depends="init,init-ivy" description="Remove build artifacts">
     <delete dir="${build.dir}"/>
     <delete dir="${tests.output.dir}"/>
     <delete>
@@ -81,7 +81,7 @@
     <!-- build the manifest file -->
     <adapter:create-manifest file="${build.dir}/Manifest.mf" title="${manifest.title}"/>
   	<copy todir="${classes.build.dir}">
-    	<fileset dir="${resources.dir}"/>
+    	<fileset dir="${resources.dir}/jar"/>
   	</copy>
   </target>
 
@@ -137,7 +137,6 @@
     <mkdir dir="${tests.output.dir}"/>
     <mkdir dir="${html.tests.output.dir}"/>
   </target>
-
 
 
   <target name="test" depends="run-tests" description="run tests">
