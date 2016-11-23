@@ -14,11 +14,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adaptris.core.management.ManagementComponent;
+import com.adaptris.core.management.MgmtComponentImpl;
 import com.adaptris.util.URLString;
 
-public class CrashServerComponent implements ManagementComponent {
-  
-  private transient Logger log = LoggerFactory.getLogger(this.getClass().getName());
+public class CrashServerComponent extends MgmtComponentImpl {
   
   private static final String CRASH_COMMAND_DIR_PROP = "crash.command.dir";
   
