@@ -17,16 +17,6 @@
   <resolvers>
 
     <chain name="chain-resolver">
-      <!--
-      <filesystem name="local-maven-repo" m2compatible="true" local="true">
-        <artifact pattern="${local-m2-repo}/[organisation]/[module]/[revision]/[module]-[revision].[ext]" />
-        <ivy pattern="${local-m2-repo}/[organisation]/[module]/[revision]/[module]-[revision].pom" />
-      </filesystem>
-      -->
-      <!--
-      <resolver ref="nexus-releases"/>
-      <resolver ref="nexus-snapshots"/>
-      -->
       <ibiblio name="default-ivy-repo" m2compatible="true" root="${default.ivy.repo}"/>
       <ibiblio name="nexus-snapshots" m2compatible="true" root="${nexus-snapshots}" changingPattern=".*SNAPSHOT.*" checkmodified="true"/>
       <ibiblio name="nexus-releases" m2compatible="true" root="${nexus-releases}"/>
