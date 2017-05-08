@@ -10,10 +10,7 @@ import org.crsh.standalone.Bootstrap;
 import org.crsh.vfs.FS.Builder;
 import org.crsh.vfs.spi.file.FileMountFactory;
 import org.crsh.vfs.spi.url.ClassPathMountFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.adaptris.core.management.ManagementComponent;
 import com.adaptris.core.management.MgmtComponentImpl;
 import com.adaptris.util.URLString;
 
@@ -72,12 +69,25 @@ public class CrashServerComponent extends MgmtComponentImpl {
 
   @Override
   public void stop() throws Exception {
-    bootstrap.stop();
+    try {
+      bootstrap.stop();
+    }
+    catch (IllegalStateException e) {
+
+    }
   }
 
   @Override
   public void destroy() throws Exception {
-    bootstrap.shutdown();
+    try {
+      // shutdown just calls stop
+      if (bootstrap.getContext() != null) {
+        bootstrap.shutdown();
+      }
+    }
+    catch (IllegalStateException e) {
+
+    }
   }
   
   private File connectToUrl(URLString loc) throws IOException {
