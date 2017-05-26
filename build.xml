@@ -88,7 +88,13 @@
 
 
   <target name="jar" depends="compile, jar.resources" description="Build a jar file">
-    <adapter:create-jar basedir="${classes.build.dir}" jarfile="${project.dist.dir}/${project.jar.name}" manifest="${build.dir}/Manifest.mf"  version-title="${manifest.title}"/>
+    <adapter:create-jar basedir="${classes.build.dir}" jarfile="${project.dist.dir}/${project.jar.name}" manifest="${build.dir}/Manifest.mf"  version-title="${manifest.title}">
+      <jar-services>
+        <service type="org.crsh.plugin.CRaSHPlugin">
+          <provider classname="com.adaptris.crash.ssh.dev.NoAuthSSH"/>
+        </service>
+      </jar-services>
+    </adapter:create-jar>
   </target>
 
 
