@@ -9,7 +9,7 @@
 
   <target name="init">
 
-    <property name="ivy.publish.revision" value="3.6-SNAPSHOT"/>  <!-- Version number of this artifact -->
+    <property name="ivy.publish.revision" value="3.7-SNAPSHOT"/>  <!-- Version number of this artifact -->
     <property name="manifest.title" value="Interlok CRaSH integration"/>
     <property name="src.dir" value="${basedir}/src"/>
     <property name="build-util.lib.dir"     value="${basedir}/../build-util"/>
