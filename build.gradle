@@ -156,6 +156,7 @@ publishing {
 
       pom.withXml {
         asNode().appendNode("description", "SSH/Telnet to a running Interlok instance")
+        asNode().appendNode("url", "http://interlok.adaptris.net/interlok-docs/advanced-shell.html")
         def properties = asNode().appendNode("properties")
         properties.appendNode("target", "3.4.1+")
         properties.appendNode("tags", "management,ssh,telnet")
