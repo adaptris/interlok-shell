@@ -14,7 +14,7 @@ ext {
   componentName='Interlok CRaSH integration'
   organizationName = "Adaptris Ltd"
   organizationUrl = "http://interlok.adaptris.net"
-  slf4jVersion = '1.7.25'
+  slf4jVersion = '1.7.26'
 }
 
 if (JavaVersion.current().isJava8Compatible()) {
