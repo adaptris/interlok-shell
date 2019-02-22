@@ -14,7 +14,8 @@ ext {
   componentName='Interlok CRaSH integration'
   organizationName = "Adaptris Ltd"
   organizationUrl = "http://interlok.adaptris.net"
-  slf4jVersion = '1.7.25'
+  slf4jVersion = '1.7.26'
+  log4j2Version = '2.11.2'
 }
 
 if (JavaVersion.current().isJava8Compatible()) {
@@ -76,14 +77,14 @@ dependencies {
   compile ("org.apache.sshd:sshd-core:0.11.0")
   compile ("org.apache.sshd:sshd-pam:0.11.0")
   compile ("org.codehaus.groovy:groovy-all:2.5.2")
-  compile ("org.bouncycastle:bcpkix-jdk15on:1.60")
-  compile ("org.bouncycastle:bcprov-jdk15on:1.60")
+  compile ("org.bouncycastle:bcpkix-jdk15on:1.61")
+  compile ("org.bouncycastle:bcprov-jdk15on:1.61")
 
   testCompile ('junit:junit:4.12')
   testCompile ("com.adaptris:interlok-stubs:$interlokCoreVersion") { changing= true}
-  testCompile ("org.apache.logging.log4j:log4j-core:2.8.1")
-  testCompile ("org.apache.logging.log4j:log4j-1.2-api:2.8.1")
-  testCompile ("org.apache.logging.log4j:log4j-api:2.8.1")
+  testCompile ("org.apache.logging.log4j:log4j-core:$log4j2Version")
+  testCompile ("org.apache.logging.log4j:log4j-1.2-api:$log4j2Version")
+  testCompile ("org.apache.logging.log4j:log4j-api:$log4j2Version")
   testCompile ("org.mockito:mockito-all:1.10.19")
 
   javadoc("com.adaptris:interlok-core-apt:$interlokCoreVersion") { changing= true}
