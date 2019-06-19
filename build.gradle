@@ -193,6 +193,7 @@ publishing {
       artifact sourcesJar { classifier "sources" }
 
       pom.withXml {
+        asNode().appendNode("name", componentName)
         asNode().appendNode("description", "SSH/Telnet to a running Interlok instance")
         asNode().appendNode("url", "http://interlok.adaptris.net/interlok-docs/advanced-shell.html")
         def properties = asNode().appendNode("properties")
