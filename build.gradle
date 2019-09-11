@@ -86,7 +86,7 @@ dependencies {
   compile ("org.codehaus.groovy:groovy-all:2.5.8") {
     exclude group: 'org.codehaus.groovy', module: 'groovy-testng'
   }
-  compile ("org.bouncycastle:bcpkix-jdk15on:1.62")
+  compile ("org.bouncycastle:bcpkix-jdk15on:1.63")
   compile ("org.bouncycastle:bcprov-jdk15on:1.62")
 
   testCompile ('junit:junit:4.12')
