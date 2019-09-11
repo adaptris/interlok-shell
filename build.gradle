@@ -87,7 +87,7 @@ dependencies {
     exclude group: 'org.codehaus.groovy', module: 'groovy-testng'
   }
   compile ("org.bouncycastle:bcpkix-jdk15on:1.62")
-  compile ("org.bouncycastle:bcprov-jdk15on:1.62")
+  compile ("org.bouncycastle:bcprov-jdk15on:1.63")
 
   testCompile ('junit:junit:4.12')
   testCompile ("com.adaptris:interlok-stubs:$interlokCoreVersion") { changing= true}
