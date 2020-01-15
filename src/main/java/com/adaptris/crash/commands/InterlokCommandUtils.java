@@ -3,7 +3,7 @@ package com.adaptris.crash.commands;
 import com.adaptris.core.ComponentState;
 import com.adaptris.core.StartedState;
 import com.adaptris.core.runtime.*;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.crsh.command.BaseCommand;
 import org.crsh.command.InvocationContext;
 import org.crsh.text.Color;

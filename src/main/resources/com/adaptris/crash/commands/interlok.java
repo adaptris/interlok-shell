@@ -12,7 +12,7 @@ import com.adaptris.crash.commands.parameters.PasswordOption;
 import com.adaptris.crash.commands.parameters.ShowJMXDetailsOptions;
 import com.adaptris.crash.commands.parameters.UsernameOption;
 import groovy.util.ScriptException;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.crsh.cli.*;
 import org.crsh.cli.descriptor.ParameterDescriptor;
 import org.crsh.cli.spi.Completer;
