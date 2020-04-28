@@ -25,7 +25,6 @@ ext {
   organizationName = "Adaptris Ltd"
   organizationUrl = "http://interlok.adaptris.net"
   slf4jVersion = '1.7.30'
-  log4j2Version = '2.13.2'
   bouncyCastleVersion = '1.65'
 }
 
@@ -114,10 +113,11 @@ dependencies {
   compile ("org.bouncycastle:bcprov-jdk15on:$bouncyCastleVersion")
 
   testCompile ('junit:junit:4.13')
-  testCompile ("com.adaptris:interlok-stubs:$interlokCoreVersion") { changing= true}
-  testCompile ("org.apache.logging.log4j:log4j-core:$log4j2Version")
-  testCompile ("org.apache.logging.log4j:log4j-1.2-api:$log4j2Version")
-  testCompile ("org.apache.logging.log4j:log4j-api:$log4j2Version")
+  testCompile "com.adaptris:interlok-stubs:$interlokCoreVersion", {
+    changing= true
+    exclude group: "org.apache.logging.log4j"
+  }
+  testCompile ("org.slf4j:slf4j-simple:$slf4jVersion")
   testCompile ("org.mockito:mockito-all:1.10.19")
 
   javadoc("com.adaptris:interlok-core-apt:$interlokCoreVersion") { changing= true}
@@ -215,13 +215,14 @@ publishing {
 
       pom.withXml {
         asNode().appendNode("name", componentName)
-        asNode().appendNode("description", "SSH/Telnet to a running Interlok instance")
+        asNode().appendNode("description", "SSH/Telnet to a running Interlok instance via Crashub")
         asNode().appendNode("url", "http://interlok.adaptris.net/interlok-docs/advanced-shell.html")
         def properties = asNode().appendNode("properties")
         properties.appendNode("target", "3.4.1+")
         properties.appendNode("tags", "management,ssh,telnet")
         properties.appendNode("license", "false")
         properties.appendNode("externalUrl", "http://www.crashub.org")
+        properties.appendNode("deprecated", "Removed in Interlok 4.0 since crashub itself is 'unloved' and Java 11 is unsupported")
       }
     }
   }
