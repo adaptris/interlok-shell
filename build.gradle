@@ -106,7 +106,7 @@ dependencies {
   }
   compile ("org.apache.sshd:sshd-core:0.14.0")
   compile ("org.apache.sshd:sshd-pam:0.11.0")
-  compile ("org.codehaus.groovy:groovy-all:2.5.11") {
+  compile ("org.codehaus.groovy:groovy-all:2.5.12") {
     exclude group: 'org.codehaus.groovy', module: 'groovy-testng'
   }
   compile ("org.bouncycastle:bcpkix-jdk15on:$bouncyCastleVersion")
