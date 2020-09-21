@@ -118,7 +118,7 @@ dependencies {
     exclude group: "org.apache.logging.log4j"
   }
   testCompile ("org.slf4j:slf4j-simple:$slf4jVersion")
-  testCompile ("org.mockito:mockito-core:3.5.9")
+  testCompile ("org.mockito:mockito-core:3.5.11")
   testCompile ("org.mockito:mockito-inline:3.5.9")
 
   javadoc("com.adaptris:interlok-core-apt:$interlokCoreVersion") { changing= true}
