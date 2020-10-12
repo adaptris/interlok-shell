@@ -112,7 +112,7 @@ dependencies {
   compile ("org.bouncycastle:bcpkix-jdk15on:$bouncyCastleVersion")
   compile ("org.bouncycastle:bcprov-jdk15on:$bouncyCastleVersion")
 
-  testCompile ('junit:junit:4.13')
+  testCompile ('junit:junit:4.13.1')
   testCompile "com.adaptris:interlok-stubs:$interlokCoreVersion", {
     changing= true
     exclude group: "org.apache.logging.log4j"
