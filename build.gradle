@@ -25,7 +25,7 @@ ext {
   organizationName = "Adaptris Ltd"
   organizationUrl = "http://interlok.adaptris.net"
   slf4jVersion = '1.7.30'
-  bouncyCastleVersion = '1.67'
+  bouncyCastleVersion = '1.68'
 }
 
 if (JavaVersion.current().isJava8Compatible()) {
