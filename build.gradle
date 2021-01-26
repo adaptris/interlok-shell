@@ -5,12 +5,12 @@ plugins {
   id 'jacoco'
   // Manage optional dependencies in maven pom.
   id 'nebula.optional-base' version '5.0.3'
-  id 'com.github.spotbugs' version '4.5.1'
+  id 'com.github.spotbugs' version '4.6.0'
 }
 
 ext {
-  interlokCoreVersion = project.hasProperty('interlokCoreVersion') ? project.getProperty('interlokCoreVersion') : '3.11-SNAPSHOT'
-  releaseVersion = project.hasProperty('releaseVersion') ? project.getProperty('releaseVersion') : '3.11-SNAPSHOT'
+  interlokCoreVersion = project.hasProperty('interlokCoreVersion') ? project.getProperty('interlokCoreVersion') : '3.12-SNAPSHOT'
+  releaseVersion = project.hasProperty('releaseVersion') ? project.getProperty('releaseVersion') : '3.12-SNAPSHOT'
   nexusBaseUrl = project.hasProperty('nexusBaseUrl') ? project.getProperty('nexusBaseUrl') : 'https://nexus.adaptris.net/nexus'
   mavenPublishUrl = project.hasProperty('mavenPublishUrl') ? project.getProperty('mavenPublishUrl') : nexusBaseUrl + '/content/repositories/snapshots'
   javadocsBaseUrl = nexusBaseUrl + "/content/sites/javadocs/com/adaptris"
@@ -25,7 +25,7 @@ ext {
   organizationName = "Adaptris Ltd"
   organizationUrl = "http://interlok.adaptris.net"
   slf4jVersion = '1.7.30'
-  bouncyCastleVersion = '1.67'
+  bouncyCastleVersion = '1.68'
 }
 
 if (JavaVersion.current().isJava8Compatible()) {
@@ -54,7 +54,8 @@ ext.buildInfo = { ->
     }
 }
 
-sourceCompatibility = 1.8
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
 group   = 'com.adaptris'
 version = releaseVersion
 def versionDir = "$buildDir/version"
@@ -106,7 +107,7 @@ dependencies {
   }
   compile ("org.apache.sshd:sshd-core:0.14.0")
   compile ("org.apache.sshd:sshd-pam:0.11.0")
-  compile ("org.codehaus.groovy:groovy-all:2.5.13") {
+  compile ("org.codehaus.groovy:groovy-all:2.5.14") {
     exclude group: 'org.codehaus.groovy', module: 'groovy-testng'
   }
   compile ("org.bouncycastle:bcpkix-jdk15on:$bouncyCastleVersion")
@@ -118,8 +119,8 @@ dependencies {
     exclude group: "org.apache.logging.log4j"
   }
   testCompile ("org.slf4j:slf4j-simple:$slf4jVersion")
-  testCompile ("org.mockito:mockito-core:3.6.0")
-  testCompile ("org.mockito:mockito-inline:3.6.0")
+  testCompile ("org.mockito:mockito-core:3.7.0")
+  testCompile ("org.mockito:mockito-inline:3.7.0")
 
   javadoc("com.adaptris:interlok-core-apt:$interlokCoreVersion") { changing= true}
   offlineJavadocPackages ("com.adaptris:interlok-core:$interlokCoreVersion:javadoc@jar") { changing= true}
